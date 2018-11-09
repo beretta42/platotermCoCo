@@ -1,0 +1,7 @@
+section .text load 0e00
+section .data
+section .bss
+entry start
+
+define basesympat %s_base
+define lensympat %s_len

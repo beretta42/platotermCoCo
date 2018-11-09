@@ -1,8 +1,9 @@
 CROSS_AS=m6809-unknown-as
 CROSS_LD=m6809-unknown-ld
 CROSS_CC=m6809-unknown-gcc
+CROSS_CC_OPT=-I.. -Ifakelib
 
-all: ../tools/mk_scale plato.bin
+all: plato.dsk
 
 ../tools/mk_scale:
 	$(MAKE) -C ../tools
@@ -10,19 +11,25 @@ all: ../tools/mk_scale plato.bin
 scale.c: ../tools/mk_scale
 	../tools/mk_scale 256 192 > scale.c
 
-plato.bin: scale.c coco.c
-	$(CROSS_CC) -nostdlib -I.. -Ifakelib -o plato.bin \
-	../config_base.c \
-	../io_base.c \
-	../keyboard_base.c \
-	../plato.c \
-	../prefs_base.c \
-	../protocol.c \
-	../screen_base.c \
-	../terminal.c \
-	../touch_base.c \
-	coco.c \
-	scale.c
+crt0.o: crt0.s
+	$(CROSS_AS) -o crt0.o crt0.s
+
+plato.bin: scale.c coco.c crt0.o
+	$(CROSS_CC) $(CROSS_CC_OPT) -c ../config_base.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	../io_base.c 
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	../keyboard_base.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	../plato.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	../prefs_base.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	../protocol.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	../screen_base.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	../terminal.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	../touch_base.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	coco.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c	scale.c
+	$(CROSS_LD) -Map=plato.map --script=basic.link -o plato.bin \
+	crt0.o config_base.o io_base.o \
+	keyboard_base.o plato.o prefs_base.o protocol.o screen_base.o \
+	terminal.o touch_base.o coco.o scale.o
 
 plato.dsk: plato.bin
 	rm -f plato.dsk
@@ -32,4 +39,4 @@ plato.dsk: plato.bin
 
 
 clean:
-	rm -f scale.c plato.bin plato.dsk *~
+	rm -f scale.c plato.bin plato.dsk *~ *.o *.map
