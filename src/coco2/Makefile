@@ -40,3 +40,4 @@ plato.dsk: plato.bin
 
 clean:
 	rm -f scale.c plato.bin plato.dsk *~ *.o *.map
+	cd ../tools; rm -f mk_ascii_key_h mk_font mk_scale
