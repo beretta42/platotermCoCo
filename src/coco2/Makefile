@@ -35,7 +35,7 @@ plato.dsk: plato.bin
 	rm -f plato.dsk
 	decb dskini plato.dsk
 	decb copy -b -2 plato.bin plato.dsk,PLATO.BIN
-	decb copy -a -0 AUTOEXEC.BAS plato.dsk,AUTOEXEC.BAS
+	decb copy -a -0 -l AUTOEXEC.BAS plato.dsk,AUTOEXEC.BAS
 
 
 clean:
