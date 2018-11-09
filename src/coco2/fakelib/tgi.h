@@ -1,0 +1,9 @@
+
+
+#define COLOR_BLACK 0x00
+#define COLOR_WHITE 0x3f
+
+#define TGI_COLOR_BLACK COLOR_BLACK
+#define TGI_COLOR_WHITE COLOR_WHITE
+
+
