@@ -26,8 +26,8 @@ plato.bin: scale.c coco.c crt0.o
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	../touch_base.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	coco.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	scale.c
-	$(CROSS_LD) -Map=plato.map --script=basic.link -o plato.bin \
-	crt0.o config_base.o io_base.o \
+	$(CROSS_LD) -Map=plato.map --oformat=decb --script=basic.link \
+	-o plato.bin crt0.o config_base.o io_base.o \
 	keyboard_base.o plato.o prefs_base.o protocol.o screen_base.o \
 	terminal.o touch_base.o coco.o scale.o
 
