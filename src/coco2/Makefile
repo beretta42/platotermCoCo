@@ -24,5 +24,12 @@ plato.bin: scale.c coco.c
 	coco.c \
 	scale.c
 
+plato.dsk: plato.bin
+	rm -f plato.dsk
+	decb dskini plato.dsk
+	decb copy -b -2 plato.bin plato.dsk,PLATO.BIN
+	decb copy -a -0 AUTOEXEC.BAS plato.dsk,AUTOEXEC.BAS
+
+
 clean:
-	rm -f scale.c plato.bin *~
+	rm -f scale.c plato.bin plato.dsk *~
