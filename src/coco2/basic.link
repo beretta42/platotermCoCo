@@ -1,4 +1,4 @@
-section .text load 3000
+section .text load 0e00
 section .data
 section .bss
 entry start
