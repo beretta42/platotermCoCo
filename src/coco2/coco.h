@@ -60,15 +60,15 @@ unsigned char ser_get (char* b);
 unsigned char ser_close (void);
 unsigned char ser_uninstall (void);
 unsigned char ser_unload (void);
-unsigned char ser_load_driver (const char* driver)
-char cgetc (void)
-void screen_wait(void)
-unsigned char mouse_unload (void)
+unsigned char ser_load_driver (const char* driver);
+char cgetc (void);
+void screen_wait(void);
+unsigned char mouse_unload (void);
 unsigned char mouse_load_driver (const struct mouse_callbacks* c,
-				 const char* driver)
-void mouse_show (void)
-void mouse_move (int x, int y)
-unsigned char mouse_uninstall (void)
+				 const char* driver);
+void mouse_show (void);
+void mouse_move (int x, int y);
+unsigned char mouse_uninstall (void);
 const struct mouse_callbacks mouse_def_callbacks;
 const struct mouse_info mouse_info;
 
@@ -77,13 +77,13 @@ const struct mouse_info mouse_info;
 ***********************/
 
 
-unsigned char tgi_getcolor (void)
-void tgi_setcolor (unsigned char color)
-void tgi_bar (int x1, int y1, int x2, int y2)
-void tgi_init (void)
-void tgi_clear (void)
-void tgi_setpixel (int x, int y)
-void tgi_line (int x1, int y1, int x2, int y2)
-void tgi_done (void)
-void tgi_uninstall (void)
+unsigned char tgi_getcolor (void);
+void tgi_setcolor (unsigned char color);
+void tgi_bar (int x1, int y1, int x2, int y2);
+void tgi_init (void);
+void tgi_clear (void);
+void tgi_setpixel (int x, int y);
+void tgi_line (int x1, int y1, int x2, int y2);
+void tgi_done (void);
+void tgi_uninstall (void);
 
