@@ -9,5 +9,4 @@ start:	lds	#$6000
 a@	clr	,x+
 	leay	-1,y
 	bne	a@
-	;; fixme: clear out bss here
 	jmp	_main

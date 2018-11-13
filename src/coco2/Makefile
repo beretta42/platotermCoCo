@@ -1,7 +1,7 @@
 CROSS_AS=m6809-unknown-as
 CROSS_LD=m6809-unknown-ld
 CROSS_CC=m6809-unknown-gcc
-CROSS_CC_OPT=-I.. -Ifakelib
+CROSS_CC_OPT=-I.. -Ifakelib -fomit-frame-pointer
 
 all: plato.dsk
 

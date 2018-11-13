@@ -17,20 +17,24 @@ stdio.h API
 *********************/
 FILE *fopen(const char *pathname, const char *mode)
 {
+    return NULL;
 }
 
 
 size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
+    return 0;
 }
 
 size_t fwrite(const void *ptr, size_t size, size_t nmemb,
 	      FILE *stream)
 {
+    return 0;
 }
 
 int fclose(FILE *stream)
 {
+    return -1;
 }
 
 
@@ -39,22 +43,48 @@ int fclose(FILE *stream)
 *********************/
 void *memset(void *s, int c, size_t n)
 {
+    unsigned char *p = (unsigned char *)s;
+    while (n--) *p++ = c;
 }
 
 char* strupr (char* s)
 {
+    char *p = s;
+    while (*p){
+	*p = toupper(*p);
+	p++;
+    }
+    return s;
 }
 
 size_t strlen (const char* s)
 {
+    int n;
+    while (*s++) n++;
+    return n;
+}
+
+int toupper (int c)
+{
+    if (c >= 'a' || c <= 'z')
+	return c - 40;
+    return c;
 }
 
 int tolower (int c)
 {
+    if (c >= 'A' || c <= 'Z')
+	return c + 40;
+    return c;
 }
 
 int strcmp(const char *s1, const char *s2)
 {
+    while (*s1) {
+	if (*s1++ != *s2++)
+	    return -1;
+    }
+    return 0;
 }
 
 /********************
@@ -82,7 +112,7 @@ void io_send_byte(uint8_t b)
 {
 }
 
-short splash_size;
+short splash_size = 1;
 
 padByte splash[1] = {0x42};
 
@@ -112,6 +142,19 @@ void screen_load_driver(void)
 
 void screen_init_hook(void)
 {
+    /* 256x192 bw mode green/light green */
+    *(unsigned char *)0xff22 = 0xf0;
+    *(unsigned char *)0xffc0 = 0x00;
+    *(unsigned char *)0xffc3 = 0x00;
+    *(unsigned char *)0xffc5 = 0x00;
+    /* screen ram address to 0x6000 */
+    *(unsigned char *)0xffc6 = 0x00;
+    *(unsigned char *)0xffc8 = 0x00;
+    *(unsigned char *)0xffca = 0x00;
+    *(unsigned char *)0xffcc = 0x00;
+    *(unsigned char *)0xffcf = 0x00;
+    *(unsigned char *)0xffd1 = 0x00;
+    *(unsigned char *)0xffd2 = 0x00;
 }
 
 void keyboard_main(void)
@@ -155,6 +198,10 @@ unsigned char ser_unload (void)
 {
 }
 
+unsigned char ser_load_driver (const char* driver)
+{
+}
+
 char cgetc (void)
 {
 }
@@ -191,9 +238,6 @@ const struct mouse_info mouse_info;
  TGI API
 ***********************/
 
-unsigned char ser_load_driver (const char* driver)
-{
-}   
 
 unsigned char tgi_getcolor (void)
 {

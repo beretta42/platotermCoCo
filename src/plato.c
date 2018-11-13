@@ -34,9 +34,9 @@ void main(void)
 {
   screen_init();
   config_init();
-  io_init();
-  touch_init();
-  terminal_init();
+  //io_init();
+  //touch_init();
+  //terminal_init();
   greeting();
   screen_beep();
   

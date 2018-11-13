@@ -1,3 +1,4 @@
+#define NULL 0
 typedef unsigned int size_t; 
 typedef void * FILE;
 FILE *fopen(const char *pathname, const char *mode);
