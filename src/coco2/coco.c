@@ -16,7 +16,7 @@ extern unsigned int fontptr[];
 
 extern padBool FastText;
 
-#define SCREEN ((unsigned char *)0x6000)
+#define screen ((unsigned char *)0x6000)
 
 /********************
 stdlib.h API
@@ -124,10 +124,6 @@ void io_init_funcptrs(void)
 void io_send_byte(uint8_t b)
 {
 }
-
-short splash_size = 3;
-padByte splash[3] = {'A','B','C'};
-
 
 void prefs_driver(void)
 {
@@ -290,9 +286,6 @@ void screen_char_draw(padPt* Coord, unsigned char* ch, unsigned char count)
 
 void prefs_show_greeting(void)
 {
-    // test char draw
-    padPt c = { 100,100 };
-    screen_char_draw(&c, "Help Me!", 8);
 }
 
 
@@ -398,6 +391,9 @@ const struct mouse_info mouse_info;
  TGI API
 ***********************/
 
+unsigned int color = 0xff;
+
+
 // fixme: do most of this stuff in asm
 
 unsigned char tgi_getcolor (void)
@@ -418,17 +414,41 @@ void tgi_init (void)
 
 void tgi_clear (void)
 {
-    memset(SCREEN, 0, 32*192);
+    memset(screen, 0, 32*192);
 }
 
 void tgi_setpixel (int x, int y)
 {
-    unsigned char *a = SCREEN + y * 32 + x/8;
-    *a |= 0x80 >> (x & 7);
+    //    unsigned char *a = screen + y * 32 + x/8;
+    //*a |= 0x80 >> (x & 7);
+    unsigned char mask;
+    int off;
+
+    mask = 0x80 >> (x & 7);
+    x >>= 3;
+    off = y * 32 + x;
+    /* for 1 bpp this works, but should be
+       more like: screen = (screen & ~mask) | (color & mask) */
+    if (color){
+        screen[off] = screen[off] | mask;
+    }
+    else
+        screen[off] = screen[off] & ~mask;
 }
 
 void tgi_line (int x1, int y1, int x2, int y2)
 {
+    int dx =  abs(x2-x1), sx = x1<x2 ? 1 : -1;
+    int dy = -abs(y2-y1), sy = y1<y2 ? 1 : -1;
+    int err = dx+dy, e2; /* error value e_xy */
+
+    for(;;){  /* loop */
+	tgi_setpixel(x1,y1);
+	if (x1==x2 && y1==y2) break;
+	e2 = 2*err;
+	if (e2 >= dy) { err += dy; x1 += sx; } /* e_xy+e_x > 0 */
+	if (e2 <= dx) { err += dx; y1 += sy; } /* e_xy+e_y < 0 */
+    }
 }
 
 void tgi_done (void)
