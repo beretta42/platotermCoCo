@@ -406,6 +406,19 @@ void tgi_setcolor (unsigned char color)
 
 void tgi_bar (int x1, int y1, int x2, int y2)
 {
+    int d;
+    int h;
+    if (y1 < y2){
+        d = 1;
+        h = y2 - y1;
+    } else {
+        d = -1;
+        h = y1 - y2;
+    }
+    do {
+        tgi_line(x2,y1,x1,y1);
+        y1 += d;
+    } while (h--);   
 }
 
 void tgi_init (void)
