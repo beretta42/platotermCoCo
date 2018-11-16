@@ -71,6 +71,7 @@ void io_init(void)
  */
 void io_open(void)
 {
+    config.io_mode = IO_MODE_SERIAL;
   if (config.io_mode == IO_MODE_SERIAL)
     {
       params.baudrate = config.baud;
@@ -110,14 +111,14 @@ void io_main(void)
     {
       if (recv_buffer_size>config.xoff_threshold)
   	{
-  	  io_recv_serial_flow_off();
+	    io_recv_serial_flow_off();
   	}
     }
   else /* xoff_enabled==true */
     {
       if (xoff_enabled==true && recv_buffer_size<config.xon_threshold)
   	{
-  	  io_recv_serial_flow_on();
+	    io_recv_serial_flow_on();
   	}
     }
 

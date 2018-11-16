@@ -14,9 +14,17 @@ extern unsigned short scalex[];
 extern unsigned short scaley[];
 extern unsigned int fontptr[];
 
+
+extern void (*io_recv_serial_flow_off)(void);
+extern void (*io_recv_serial_flow_on)(void);
+
 extern padBool FastText;
 
 #define screen ((unsigned char *)0x6000)
+
+
+void noop(void) {
+}
 
 /********************
 stdlib.h API
@@ -60,21 +68,11 @@ void *memset(void *s, int c, size_t n)
     while (n--) *p++ = c;
 }
 
-char* strupr (char* s)
-{
-    char *p = s;
-    while (*p){
-	*p = toupper(*p);
-	p++;
-    }
-    return s;
-}
-
 size_t strlen (const char* s)
 {
-    int n;
-    while (*s++) n++;
-    return n;
+    char *e = (char *)s;
+    while (*e++);
+    return e-s;
 }
 
 int toupper (int c)
@@ -119,10 +117,13 @@ void screen_update_colors(void)
 
 void io_init_funcptrs(void)
 {
+    io_recv_serial_flow_off = noop;
+    io_recv_serial_flow_on = noop;
 }
 
 void io_send_byte(uint8_t b)
 {
+    ser_put_clean(b);
 }
 
 void prefs_driver(void)
@@ -310,6 +311,7 @@ void screen_init_hook(void)
     *(unsigned char *)0xffd2 = 0x00;
 }
 
+/*
 void keyboard_main(void)
 {
 }
@@ -317,6 +319,7 @@ void keyboard_main(void)
 void keyboard_clear(void)
 {
 }
+*/
 
 void terminal_char_load(padWord charnum, charData theChar)
 {
@@ -327,19 +330,7 @@ void terminal_char_load(padWord charnum, charData theChar)
 /**********************
  Misc CC65 libs
 ***********************/
-unsigned char ser_open (const struct ser_params* params)
-{
-}
-
 unsigned char ser_ioctl (unsigned char code, void* data)
-{
-}
-
-unsigned char ser_get (char* b)
-{
-}
-
-unsigned char ser_close (void)
 {
 }
 
@@ -353,6 +344,7 @@ unsigned char ser_unload (void)
 
 unsigned char ser_load_driver (const char* driver)
 {
+    return 0;
 }
 
 char cgetc (void)
@@ -391,7 +383,7 @@ const struct mouse_info mouse_info;
  TGI API
 ***********************/
 
-unsigned int color = 0xff;
+unsigned int pen = 0xff;
 
 
 // fixme: do most of this stuff in asm
@@ -402,6 +394,7 @@ unsigned char tgi_getcolor (void)
 
 void tgi_setcolor (unsigned char color)
 {
+    pen = color;
 }
 
 void tgi_bar (int x1, int y1, int x2, int y2)
@@ -442,7 +435,7 @@ void tgi_setpixel (int x, int y)
     off = y * 32 + x;
     /* for 1 bpp this works, but should be
        more like: screen = (screen & ~mask) | (color & mask) */
-    if (color){
+    if (pen){
         screen[off] = screen[off] | mask;
     }
     else

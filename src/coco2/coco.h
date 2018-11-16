@@ -23,7 +23,6 @@ int fclose(FILE *stream);
  string.h API 
 *********************/
 void *memset(void *s, int c, size_t n);
-char* strupr (char* s);
 size_t strlen (const char* s);
 int toupper (int c);
 int tolower (int c);
@@ -54,13 +53,6 @@ void terminal_char_load(padWord charnum, charData theChar);
 /**********************
  Misc CC65 libs
 ***********************/
-unsigned char ser_open (const struct ser_params* params);
-unsigned char ser_ioctl (unsigned char code, void* data);
-unsigned char ser_get (char* b);
-unsigned char ser_close (void);
-unsigned char ser_uninstall (void);
-unsigned char ser_unload (void);
-unsigned char ser_load_driver (const char* driver);
 char cgetc (void);
 void screen_wait(void);
 unsigned char mouse_unload (void);
