@@ -14,5 +14,6 @@ void tgi_init (void);
 void tgi_clear (void);
 void tgi_setpixel (int x, int y);
 void tgi_line (int x1, int y1, int x2, int y2);
+void tgi_hline (int x1, int y1, int x2);
 void tgi_done (void);
 void tgi_uninstall (void);

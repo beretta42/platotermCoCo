@@ -75,13 +75,6 @@ size_t strlen (const char* s)
     return e-s;
 }
 
-int toupper (int c)
-{
-    if (c >= 'a' || c <= 'z')
-	return c - 40;
-    return c;
-}
-
 int tolower (int c)
 {
     if (c >= 'A' || c <= 'Z')
