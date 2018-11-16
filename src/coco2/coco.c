@@ -409,7 +409,7 @@ void tgi_bar (int x1, int y1, int x2, int y2)
         h = y1 - y2;
     }
     do {
-        tgi_line(x2,y1,x1,y1);
+        tgi_hline(x2,y1,x1);
         y1 += d;
     } while (h--);   
 }
@@ -455,6 +455,18 @@ void tgi_line (int x1, int y1, int x2, int y2)
 	if (e2 >= dy) { err += dy; x1 += sx; } /* e_xy+e_x > 0 */
 	if (e2 <= dx) { err += dx; y1 += sy; } /* e_xy+e_y < 0 */
     }
+}
+
+void tgi_hline (int x1, int y1, int x2)
+{
+    int t;
+    if (x1 > x2){
+	t = x1;
+	x1 = x2;
+	x2 = t;
+    }
+    while(x1 <= x2)
+	tgi_setpixel(x1++, y1);
 }
 
 void tgi_done (void)
