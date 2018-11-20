@@ -14,6 +14,9 @@ extern unsigned short scalex[];
 extern unsigned short scaley[];
 extern unsigned int fontptr[];
 
+#define FAST_TEXT 1
+#define FAST_PIX  1
+#define FAST_CLEAR 1
 
 extern void (*io_recv_serial_flow_off)(void);
 extern void (*io_recv_serial_flow_on)(void);
@@ -189,6 +192,9 @@ void screen_char_draw(padPt* Coord, unsigned char* ch, unsigned char count)
 
     /* the diet chardraw routine - fast text output. */
     for (i = 0; i < count; ++i) {
+#ifdef FAST_TEXT
+	tgi_char_blit(x,y,*ch++);
+#else
 	a = *ch;
 	++ch;
 	a += offset;
@@ -207,8 +213,9 @@ void screen_char_draw(padPt* Coord, unsigned char* ch, unsigned char count)
 	    x -= width;
 	    ++p;
 	}
-	x += width;
 	y -= height;
+#endif
+	x += width;
     }
     return;
 
@@ -387,6 +394,7 @@ unsigned char tgi_getcolor (void)
 
 void tgi_setcolor (unsigned char color)
 {
+    tgi_cset(color);
     pen = color;
 }
 
@@ -411,15 +419,16 @@ void tgi_init (void)
 {
 }
 
+#ifndef FAST_CLEAR
 void tgi_clear (void)
 {
     memset(screen, 0, 32*192);
 }
+#endif
 
+#ifdef FAST_PIX
 void tgi_setpixel (int x, int y)
 {
-    //    unsigned char *a = screen + y * 32 + x/8;
-    //*a |= 0x80 >> (x & 7);
     unsigned char mask;
     int off;
 
@@ -434,6 +443,7 @@ void tgi_setpixel (int x, int y)
     else
         screen[off] = screen[off] & ~mask;
 }
+#endif
 
 void tgi_line (int x1, int y1, int x2, int y2)
 {

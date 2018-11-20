@@ -17,3 +17,6 @@ void tgi_line (int x1, int y1, int x2, int y2);
 void tgi_hline (int x1, int y1, int x2);
 void tgi_done (void);
 void tgi_uninstall (void);
+
+void tgi_cset(unsigned char color);
+void tgi_char_blit(int x, int y, unsigned char c);
