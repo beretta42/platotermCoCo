@@ -17,6 +17,7 @@ extern unsigned int fontptr[];
 #define FAST_TEXT 1
 #define FAST_PIX  1
 #define FAST_CLEAR 1
+#define FAST_HLINE 1
 
 extern void (*io_recv_serial_flow_off)(void);
 extern void (*io_recv_serial_flow_on)(void);
@@ -400,18 +401,18 @@ void tgi_setcolor (unsigned char color)
 
 void tgi_bar (int x1, int y1, int x2, int y2)
 {
-    int d;
     int h;
-    if (y1 < y2){
-        d = 1;
-        h = y2 - y1;
-    } else {
-        d = -1;
-        h = y1 - y2;
-    }
+    int w;
+    int x;
+    int y;
+    w = abs(x1 - x2);
+    h = abs(y1 - y2);
+    if (!w || !h)
+	return;
+    x = x1 < x2 ? x1 : x2;
+    y = y1 < y2 ? y1 : y2;
     do {
-        tgi_hline(x2,y1,x1);
-        y1 += d;
+        tgi_hline(x,y++,w);
     } while (h--);   
 }
 
@@ -460,6 +461,7 @@ void tgi_line (int x1, int y1, int x2, int y2)
     }
 }
 
+#ifndef FAST_HLINE
 void tgi_hline (int x1, int y1, int x2)
 {
     int t;
@@ -471,6 +473,7 @@ void tgi_hline (int x1, int y1, int x2)
     while(x1 <= x2)
 	tgi_setpixel(x1++, y1);
 }
+#endif
 
 void tgi_done (void)
 {

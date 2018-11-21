@@ -2,7 +2,7 @@
 	export _tgi_setpixel
 	export _tgi_cset
 	export _tgi_char_blit
-	export foo
+	export _tgi_hline
 
 	import _font
 
@@ -55,16 +55,30 @@ smc2	orb	,y
 
 
 _tgi_cset
-	;; self modify setpixel
 	tstb
 	beq	a@
 	ldx	#tab
+	stx	smc1+2
+	stx	smc3+1
 	ldb	#$ea
-	bra	b@
-a@	ldx	#tabi
-	ldb	#$e4
-b@	stx	smc1+2
 	stb	smc2
+	stb	smc5
+	ldb	#$80
+	stb	smc4+1
+	ldb	#$24
+	stb	smc6
+	rts
+a@
+	ldx	#tabi
+	stx	smc1+2
+	stx	smc3+1
+	ldb	#$e4
+	stb	smc2
+	stb	smc5
+	ldb	#~$80
+	stb	smc4+1
+	ldb	#$25
+	stb	smc6
 	rts
 
 	;; table of shifted bit masks
@@ -146,3 +160,41 @@ b@	orb	,y
 	stb	,y
 	leay	32,y
 	puls	b,pc
+
+
+;;; draw a horizontal line
+;;;   X y r Y W
+;;;  fixme: more speedups possible, do we bother?
+_tgi_hline
+	pshs	x,y
+	;; y = find screen ptr
+	tfr	x,d
+	lsrb
+	lsrb
+	lsrb
+	pshs	d
+	ldb	9,s
+	lda	#32
+	mul
+	addd	,s++
+	addd	#$6000
+	tfr	d,y
+	;; tos = bit mask
+	ldb	1,s
+	andb	#7
+smc3	ldx	#tab
+	ldb	b,x
+	pshs	b
+	;; loop
+	lda	10,s
+a@	ldb	,y
+smc5	orb	,s
+	stb	,y
+	lsr	,s
+smc6	bcc	b@
+	leay	1,y
+smc4	ldb	#$80
+	stb	,s
+b@	deca
+	bne	a@
+	puls	b,x,y,pc
