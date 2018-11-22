@@ -120,7 +120,7 @@ void io_init_funcptrs(void)
 
 void io_send_byte(uint8_t b)
 {
-    ser_put_clean(b);
+    ser_put(b);
 }
 
 void prefs_driver(void)
