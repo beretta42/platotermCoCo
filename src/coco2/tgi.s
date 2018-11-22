@@ -104,7 +104,6 @@ tabi
 
 ;;; put a char on screen
 ;;;   b x y, u, r y
-;;; fixme: do we need to bother with plotting inverted color text?
 _tgi_char_blit
 	pshs	b,x,y,u
 	;; u = find ptr to glyph
