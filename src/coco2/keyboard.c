@@ -110,8 +110,11 @@ void kpoll(void)
     m += (ktab[7] & 0x40) ? 1 : 0;
     ktab[7] &= ~0x40;
     m <<= 1;
-    m += (ktab[4] & 0x40) ? 1 : 0;
+    if ( (ktab[4] & 0x40) || (ktab[1] & 0x40) ){
+	m+= 1;
+    }
     ktab[4] &= ~0x40;
+    ktab[1] &= ~0x40;
     m <<= 1;
     m += (ktab[3] & 0x40) ? 1 : 0;
     ktab[3] &= ~0x40;
