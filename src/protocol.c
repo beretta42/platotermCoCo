@@ -983,5 +983,5 @@ ShowPLATO (padByte *buff, uint16_t count)
  */
 void SetFast(void)
 {
-  FastText = (((CurMode == ModeWrite) || (CurMode == ModeErase)) && ((Rotate == padF) && (ModeBold == padF))); 
+    FastText = (((CurMode == ModeWrite) || (1/*CurMode == ModeErase*/)) && ((Rotate == padF) && (ModeBold == padF)));
 }
