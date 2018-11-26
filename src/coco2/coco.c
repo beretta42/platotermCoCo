@@ -87,9 +87,11 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb,
     int r = 0;
     uint8_t *p = (uint8_t *)ptr;
     size_t num = 0;
+    size_t s;
     DEVNUM = 1;
     while(nmemb--){
-	while(size--){
+	s = size;
+	while(s--){
 	    r = write_ll(*p++);
 	    if (r < 0)
 		goto out;
@@ -132,7 +134,7 @@ size_t strlen (const char* s)
 
 int tolower (int c)
 {
-    if (c >= 'A' || c <= 'Z')
+    if (c >= 'A' && c <= 'Z')
 	return c + 40;
     return c;
 }

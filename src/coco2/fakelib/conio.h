@@ -1,0 +1,1 @@
+char cgetc(void);

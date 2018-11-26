@@ -8,6 +8,7 @@
  */
 
 #include <stdint.h>
+#include <conio.h>
 #include "../keyboard.h"
 #include "../protocol.h"
 #include "../screen.h"
@@ -153,14 +154,14 @@ void keyboard_out(uint8_t platoKey){
 
 
 char cgetc(void) {
-#if 0
     int k;
-    while (!key){
-	k = key;
-	key = 0;
-	return atab[k-1];
+    while (1){
+	if (key){
+	    k = key;
+	    key = 0;
+	    return atab[k-1];
+	}
     }
-#endif
 }
 
 /**
