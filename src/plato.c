@@ -15,6 +15,7 @@
 #include "io.h"
 #include "config.h"
 #include "prefs.h"
+#include "serial.h"
 
 uint8_t already_started=false;
 extern padByte splash[];
@@ -30,6 +31,14 @@ void greeting(void)
   terminal_initial_position();
 }
 
+
+void autocon(void)
+{
+    char *p = "tcp connect irata.online 8005\r";
+    while (*p)
+	ser_put_clean(*p++);
+}
+
 void main(void)
 {
   screen_init();
@@ -41,7 +50,7 @@ void main(void)
   screen_beep();
   
   already_started=true;
-  
+  //  autocon();
   // And do the terminal
   for (;;)
     {

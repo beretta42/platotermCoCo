@@ -40,26 +40,70 @@ int atoi(const char *nptr)
 /********************
 stdio.h API
 *********************/
+int open_ll(uint16_t mode);
+int read_ll(void);
+int write_ll(uint8_t c);
+int close_ll(void);
+
+#define DEVNUM *((uint8_t *)0x6f)
+#define NAMBUF (uint8_t *)0x94c
+
 FILE *fopen(const char *pathname, const char *mode)
 {
-    return NULL;
+    char m;
+    memset(NAMBUF, ' ', 11);
+    /* fixme: do something more clever about filenames/extensions here */
+    memcpy(NAMBUF, pathname, strlen(pathname));
+    if (*mode == 'r')
+	m = 'I';
+    else
+	m = 'O';
+    return (FILE *)open_ll( (m<<8) | 1 );
 }
 
 
 size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
-    return 0;
+    int r = 0;
+    uint8_t *p = (uint8_t *)ptr;
+    size_t num = 0;
+    DEVNUM = 1;
+    while(nmemb--){
+	while(size--){
+	    r = read_ll();
+	    if (r < 0)
+		goto out;
+	    *p++ = r;
+	}
+	num++;
+    }
+ out:
+    return num;
 }
 
 size_t fwrite(const void *ptr, size_t size, size_t nmemb,
 	      FILE *stream)
 {
-    return 0;
+    int r = 0;
+    uint8_t *p = (uint8_t *)ptr;
+    size_t num = 0;
+    DEVNUM = 1;
+    while(nmemb--){
+	while(size--){
+	    r = write_ll(*p++);
+	    if (r < 0)
+		goto out;
+	}
+	num++;
+    }
+ out:
+    return num;
 }
 
 int fclose(FILE *stream)
 {
-    return -1;
+    DEVNUM = 1;
+    return close_ll();
 }
 
 
@@ -72,11 +116,18 @@ void *memset(void *s, int c, size_t n)
     while (n--) *p++ = c;
 }
 
+void *memcpy(void *d, const void *s, size_t n)
+{
+    uint8_t *dest = (uint8_t *)d;
+    uint8_t *src  = (uint8_t *)s;
+    while (n--) *dest++ = *src++;
+}
+
 size_t strlen (const char* s)
 {
     char *e = (char *)s;
     while (*e++);
-    return e-s;
+    return e-s-1;
 }
 
 int tolower (int c)
@@ -288,6 +339,7 @@ void screen_char_draw(padPt* Coord, unsigned char* ch, unsigned char count)
 
 void prefs_show_greeting(void)
 {
+    prefs_display("platoterm ready - <ctrl>-z for setup");
 }
 
 
@@ -348,9 +400,6 @@ unsigned char ser_load_driver (const char* driver)
     return 0;
 }
 
-char cgetc (void)
-{
-}
 
 void screen_wait(void)
 {

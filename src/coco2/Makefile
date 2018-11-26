@@ -37,11 +37,12 @@ plato.bin: font.c scale.c coco.c crt0.o
 	$(CROSS_CC) $(CROSS_CC_OPT) -c  keyboard.c
 	$(CROSS_AS) -o drivewire.o drivewire.s
 	$(CROSS_AS) -o tgi.o tgi.s
+	$(CROSS_AS) -o file.o file.s
 	$(CROSS_LD) -Map=plato.map --oformat=decb --script=basic.link \
 	-o plato.bin crt0.o config_base.o io_base.o \
 	keyboard_base.o plato.o prefs_base.o protocol.o screen_base.o \
 	terminal.o touch_base.o coco.o scale.o font.o splash.o keyboard.o \
-	drivewire.o tgi.o
+	drivewire.o tgi.o file.o
 
 plato.dsk: plato.bin
 	rm -f plato.dsk

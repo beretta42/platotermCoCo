@@ -151,6 +151,18 @@ void keyboard_out(uint8_t platoKey){
     return;
 };
 
+
+char cgetc(void) {
+#if 0
+    int k;
+    while (!key){
+	k = key;
+	key = 0;
+	return atab[k-1];
+    }
+#endif
+}
+
 /**
  * keyboard_main - Handle the keyboard presses
  */
@@ -159,6 +171,10 @@ void keyboard_main(void){
     if(key){
 	k = key;
 	key = 0;
+	if (k == 21) {
+	    prefs_run();
+	    return;
+	}
 	if (TTY) {
 	    if (meta & 4)
 		k = satab[k-1];

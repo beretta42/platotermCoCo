@@ -12,11 +12,7 @@
 #include "config.h"
 #include "screen.h"
 
-#ifdef __ATARI__
 #define CONFIG_FILE "CONFIG"
-#else
-#define CONFIG_FILE "config"
-#endif
 
 ConfigInfo config;
 char configFile[13];
