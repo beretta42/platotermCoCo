@@ -2,6 +2,7 @@
 	export _tgi_setpixel
 	export _tgi_cset
 	export _tgi_char_blit
+	export _tgi_char_blit_erase
 	export _tgi_hline
 
 	import _font
@@ -160,6 +161,67 @@ b@	orb	,y
 	leay	32,y
 	puls	b,pc
 
+
+;;; put a char on screen
+;;;   b x y, u, r y
+	if 0	
+_tgi_char_blit_erase
+	pshs	b,x,y,u
+	;; u = find ptr to glyph
+	subb	#32
+	lda	#6
+	mul
+	addd	#_font
+	tfr	d,u
+	;; y = find screen ptr
+	tfr	x,d
+	lsrb
+	lsrb
+	lsrb
+	pshs	d
+	ldb	12,s
+	lda	#32
+	mul
+	addd	,s++
+	addd	#$6000
+	tfr	d,y
+	;; tos = find rotation
+	ldb	2,s
+	andb	#7
+	pshs	b
+	;; blit
+	ldb	,u+
+	bsr	foo1
+	ldb	,u+
+	bsr	foo1
+	ldb	,u+
+	bsr	foo1
+	ldb	,u+
+	bsr	foo1
+	ldb	,u+
+	bsr	foo1
+	ldb	,u+
+	bsr	foo1
+	;; return
+	puls	d,x,y,u,pc
+
+foo1	lda	2,s
+	pshs	a
+	beq	b@
+	clra
+a@	lsrb
+	rora
+	dec	,s
+	bne	a@
+	coma
+	anda	1,y
+	sta	1,y
+b@	comb
+	andb	,y
+	stb	,y
+	leay	32,y
+	puls	b,pc
+	endif
 
 ;;; draw a horizontal line
 ;;;   X y r Y W
