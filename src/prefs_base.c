@@ -76,23 +76,14 @@ void prefs_run(void)
   io_prefs_updated=false;
   prefs_need_updating=false;
   prefs_clear();
-  while (prefs_running)
-    {
-      switch (config.io_mode)
-	{
-	case IO_MODE_SERIAL:
-	  prefs_serial();
-	  break;
-	/* case IO_MODE_ETHERNET: */
-	/*   prefs_ethernet(); */
-	/*   break; */
-	}
-    }
+  while (prefs_running) {
+      prefs_serial();
+  }
 
   if (prefs_need_updating)
-    {
-      prefs_update();
-    }
+      {
+	  prefs_update();
+      }
   
   TTY=TTYSave;
   TTYLoc.x=TTYLocSave.x;
@@ -323,9 +314,9 @@ void prefs_baud(void)
  */
 void prefs_interface(void)
 {
-  prefs_display("interface - e)thernet s)erial b)ack: ");
+  prefs_display("drivewire over: 1)becker 2)bitbanger b)ack: ");
 
-  ch=prefs_get_key_matching("sbSB");
+  ch=prefs_get_key_matching("12b");
 
   switch(ch)
     {
@@ -335,11 +326,17 @@ void prefs_interface(void)
     /*   io_prefs_updated=true; */
     /*   prefs_need_updating=true; */
     /*   break; */
-    case 's':
-      prefs_select("serial");
-      config.io_mode=IO_MODE_SERIAL;
-      io_prefs_updated=true;
-      prefs_need_updating=true;
+    case '1':
+      prefs_select("becker");
+      config.io_mode = IO_MODE_DWBECKER;
+      io_prefs_updated = true;
+      prefs_need_updating = true;
+      break;
+    case '2':
+      prefs_select("bitbanger");
+      config.io_mode = IO_MODE_DWBITBANGER;
+      io_prefs_updated = true;
+      prefs_need_updating = true;
       break;
     case 'b':
       prefs_select("back");
@@ -636,16 +633,20 @@ void prefs_update(void)
       prefs_clear();
     }
 
-  if (io_prefs_updated==true && config.io_mode == IO_MODE_SERIAL)
-    {
+  if (io_prefs_updated == true) {
       prefs_display("loading serial driver...");
-      config_init_hook(); // Do any special re-initalization.
-      ser_load_driver(config.driver_ser);
-      
+      switch (config.io_mode) {
+      case IO_MODE_DWBECKER:
+	  ser_load_driver("DWBKR");
+	  break;
+      case IO_MODE_DWBITBANGER:
+	  ser_load_driver("DWBIT");
+	  break;
+      }
       io_init_funcptrs();
       io_open();
       prefs_clear();
-    }  
+  }
   /* else if (io_prefs_updated==true && config.io_mode == IO_MODE_ETHERNET) */
   /*   { */
   /*     // Come back here and implement ethernet specific stuff */

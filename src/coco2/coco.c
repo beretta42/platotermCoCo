@@ -3,6 +3,7 @@
 #include <serial.h>
 #include <stdint.h>
 #include <protocol.h>
+#include <config.h>
 #include <mouse.h>
 #include <tgi.h>
 
@@ -25,7 +26,6 @@ extern void (*io_recv_serial_flow_on)(void);
 extern padBool FastText;
 
 #define screen ((unsigned char *)0x6000)
-
 
 void noop(void) {
 }
@@ -159,6 +159,7 @@ void config_init_hook(void)
 
 void config_set_defaults(void)
 {
+    config.io_mode = IO_MODE_DWBECKER;
 }
 
 void screen_update_colors(void)
@@ -344,7 +345,7 @@ void screen_char_draw(padPt* Coord, unsigned char* ch, unsigned char count)
 
 void prefs_show_greeting(void)
 {
-    prefs_display("platoterm ready - <ctrl>-z for setup");
+    prefs_display("platoterm ready - <BREAK> for setup");
 }
 
 
@@ -402,9 +403,25 @@ unsigned char ser_unload (void)
 
 unsigned char ser_load_driver (const char* driver)
 {
+    uint8_t h[5];
+    uint8_t *type  = (int8_t *)(h+0);
+    uint16_t *size = (uint16_t *)(h+1);
+    uint8_t **addr = (uint8_t **)(h+3);
+
+    FILE *f;
+    f = fopen(driver,"r");
+    while(1){
+	fread(h,5,1,f);
+	if (*type != 0)
+	    break;
+	di();
+	fread(*addr,*size,1,f);
+	ei();
+    }
+    fclose(f);
+    ser_init();
     return 0;
 }
-
 
 void screen_wait(void)
 {
@@ -536,3 +553,5 @@ void tgi_done (void)
 void tgi_uninstall (void)
 {
 }
+
+

@@ -10,31 +10,13 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define IO_MODE_SERIAL        0
-#define IO_MODE_ETHERNET      1
+#define IO_MODE_DWBECKER      0
+#define IO_MODE_DWBITBANGER   1
+#define IO_MODE_SERIAL        16
+#define IO_MODE_ETHERNET      32
 
 #define XON_THRESHOLD 46
 #define XOFF_THRESHOLD 127
-
-/* C64/128 Driver defines */
-#define CONFIG_MOUSE_DRIVER_1351 "mou-1351"
-#define CONFIG_MOUSE_DRIVER_JOY "mou-joy"
-#define CONFIG_MOUSE_DRIVER_INKWELL "mou-inkwell"
-#define CONFIG_MOUSE_DRIVER_POT "mou-pot"
-#define CONFIG_SERIAL_DRIVER_SWIFTLINK "ser-swlink"
-#define CONFIG_SERIAL_DRIVER_UP2400 "ser-up2400"
-
-/* Atari Driver defines */
-#define CONFIG_SERIAL_DRIVER_ATRRDEV "ATRRDEV.SER"
-#define CONFIG_MOUSE_DRIVER_ATRAMI "ATRAMI.MOU"
-#define CONFIG_MOUSE_DRIVER_ATRJOY "ATRJOY.MOU"
-#define CONFIG_MOUSE_DRIVER_ATRST "ATRST.MOU"
-#define CONFIG_MOUSE_DRIVER_ATRTRK "ATRTRK.MOU"
-#define CONFIG_MOUSE_DRIVER_ATRTT "ATRTT.MOU"
-
-/* Apple2 Driver Defines */
-#define CONFIG_SERIAL_DRIVER_SSC "a2.ssc.ser"
-#define CONFIG_MOUSE_DRIVER_STDMOU "a2.stdmou.mou"
 
 typedef struct configInfo
 {
@@ -54,6 +36,8 @@ typedef struct configInfo
   unsigned short xoff_threshold;
   unsigned char fill;
 } ConfigInfo;
+
+extern ConfigInfo config;
 
 /**
  * config_init()

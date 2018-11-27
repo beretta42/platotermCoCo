@@ -45,8 +45,20 @@ static struct ser_params params = {
  */
 void io_init(void)
 {
-  prefs_display("serial driver loaded.");
-  io_res=ser_load_driver(config.driver_ser);
+
+  switch (config.io_mode) {
+  case IO_MODE_DWBECKER:
+      prefs_display("dw becker driver loaded");
+      io_res = ser_load_driver("DWBKR");
+      break;
+  case IO_MODE_DWBITBANGER:
+      prefs_display("dw bitbanger driver loaded");
+      io_res = ser_load_driver("DWBIT");
+      break;
+  default:
+      io_res = 1;
+      break;
+  }
 
   if (io_res==SER_ERR_OK)
     io_load_successful=true;

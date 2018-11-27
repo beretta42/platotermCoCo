@@ -8,9 +8,11 @@
 	section	.text
 
 start:	orcc	#$50		; off interrupts
+	ldx	#noop
+	stx	$5c0c
 	ldx	#interrupt	; set interrupt vector
 	stx	$10d		;
-	lds	#$6000		; set stack
+	lds	#$8000		; set stack
 	ldx	#.bss_base	; clear bss
 	ldy	#.bss_len	;
 a@	clr	,x+		;
@@ -18,6 +20,8 @@ a@	clr	,x+		;
 	bne	a@		;
 	andcc	#~$50		; on interrupts
 	jmp	_main		; jump to C's main
+
+noop	rts
 	
 interrupt:
         lda     $ff02           ; clear vsync pia

@@ -1,0 +1,8 @@
+section .header load 5c00
+section .text load
+section .data
+section .bss
+entry _ser_init
+
+define basesympat %s_base
+define lensympat %s_len
