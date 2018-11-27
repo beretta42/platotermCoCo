@@ -97,19 +97,15 @@ void prefs_run(void)
  */
 void prefs_serial(void)
 {
-  prefs_display("i)nterface d)river b)aud t)ouch o)ther s)ave e)xit: ");
+  prefs_display("i)nterface b)aud t)ouch o)ther s)ave e)xit: ");
 
-  ch=prefs_get_key_matching("idbtoseIDBTOSE");
+  ch=prefs_get_key_matching("ibtoseIBTOSE");
 
   switch(ch)
     {
     case 'i':
       prefs_select("interface");
       prefs_interface();
-      break;
-    case 'd':
-      prefs_select("driver");
-      prefs_driver();
       break;
     case 'b':
       prefs_select("baud");
@@ -243,14 +239,8 @@ void prefs_xonoff(void)
 void prefs_save(void)
 {
   prefs_display("saving preferences...");
-#ifdef __ATARI__
-  ser_close();
-#endif
   config_save();
   prefs_select("ok");
-#ifdef __ATARI__
-  io_open();
-#endif
   prefs_clear();
 }
 

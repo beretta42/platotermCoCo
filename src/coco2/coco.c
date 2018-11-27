@@ -22,6 +22,7 @@ extern unsigned int fontptr[];
 
 extern void (*io_recv_serial_flow_off)(void);
 extern void (*io_recv_serial_flow_on)(void);
+volatile extern uint16_t timer;
 
 extern padBool FastText;
 
@@ -175,10 +176,6 @@ void io_init_funcptrs(void)
 void io_send_byte(uint8_t b)
 {
     ser_put(b);
-}
-
-void prefs_driver(void)
-{
 }
 
 void prefs_touch(void)
@@ -425,6 +422,8 @@ unsigned char ser_load_driver (const char* driver)
 
 void screen_wait(void)
 {
+    uint16_t t = timer;
+    while(timer == t);
 }
 
 unsigned char mouse_unload (void)

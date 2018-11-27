@@ -1,11 +1,14 @@
 	export start
 	export _di
 	export _ei
+	export _timer
 	import _main
 	import _kpoll
 	import poll
 
 	section	.text
+
+_timer	.dw	0
 
 start:	orcc	#$50		; off interrupts
 	ldx	#noop
@@ -24,6 +27,9 @@ a@	clr	,x+		;
 noop	rts
 	
 interrupt:
+	ldd	_timer
+	addd	#1
+	std	_timer
         lda     $ff02           ; clear vsync pia
         jsr     _kpoll          ; go poll keyboard
         jsr     poll            ; go poll and add drivewire
