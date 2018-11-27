@@ -50,7 +50,7 @@ void main(void)
   screen_beep();
   
   already_started=true;
-  //  autocon();
+  //autocon();
   // And do the terminal
   for (;;)
     {
