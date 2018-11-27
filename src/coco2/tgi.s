@@ -164,7 +164,6 @@ b@	orb	,y
 
 ;;; put a char on screen
 ;;;   b x y, u, r y
-	if 0	
 _tgi_char_blit_erase
 	pshs	b,x,y,u
 	;; u = find ptr to glyph
@@ -221,7 +220,7 @@ b@	comb
 	stb	,y
 	leay	32,y
 	puls	b,pc
-	endif
+
 
 ;;; draw a horizontal line
 ;;;   X y r Y W
