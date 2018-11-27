@@ -584,7 +584,8 @@ void prefs_clear(void)
   uint8_t c;
   c=tgi_getcolor();
   tgi_setcolor(TGI_COLOR_BLACK);
-  tgi_bar(0,185,319,192);
+  /* fixme: this is screen driver dependant */
+  tgi_bar(0,185,255,192);
   tgi_setcolor(c);
   ShowPLATO("\n\v",2);
 }
