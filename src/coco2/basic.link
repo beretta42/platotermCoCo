@@ -1,4 +1,5 @@
 section .text load 0e00
+section .text.startup
 section .data
 section .bss
 entry start
