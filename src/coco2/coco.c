@@ -424,6 +424,7 @@ unsigned char ser_load_driver (const char* driver)
     }
     fclose(f);
     ser_init();
+    enable_poll = 1;
     return 0;
 }
 

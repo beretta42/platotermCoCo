@@ -30,3 +30,5 @@ unsigned char ser_ioctl (unsigned char code, void* data);
 unsigned char ser_get (char* b);
 unsigned char ser_put (char b);
 unsigned char ser_put_clean (char b);
+
+extern unsigned char enable_poll;

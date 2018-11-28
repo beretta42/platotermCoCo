@@ -3,6 +3,7 @@
 	export _ei
 	export _timer
 	export _ashrhi3
+	export _enable_poll
 	import _main
 	import _kpoll
 	import poll
@@ -10,6 +11,8 @@
 	section	.text
 
 _timer	.dw	0
+_enable_poll
+	.db	0
 
 start:	orcc	#$50		; off interrupts
 	ldx	#noop
@@ -33,7 +36,9 @@ interrupt:
 	std	_timer
         lda     $ff02           ; clear vsync pia
         jsr     _kpoll          ; go poll keyboard
-        jsr     poll            ; go poll and add drivewire
+	tst	_enable_poll	; is call serial polling ok
+	beq	a@		; nope - skip
+        jsr     poll            ; go poll serial device
 a@      rti                     ; return from interrupt
 
 _di:
