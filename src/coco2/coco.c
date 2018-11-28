@@ -133,6 +133,11 @@ size_t strlen (const char* s)
     return e-s-1;
 }
 
+char *strcpy(char *dest, const char *src)
+{
+    return memcpy(dest,src,strlen(src));
+}
+
 int tolower (int c)
 {
     if (c >= 'A' && c <= 'Z')

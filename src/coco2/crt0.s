@@ -2,6 +2,7 @@
 	export _di
 	export _ei
 	export _timer
+	export _ashrhi3
 	import _main
 	import _kpoll
 	import poll
@@ -42,3 +43,15 @@ _di:
 _ei:
         andcc   #~$50           ; start interrupts
         rts
+
+_ashrhi3:
+        pshs    x
+1$:
+        leax    -1,x
+        cmpx    #-1
+        beq     2$
+        asra
+        rorb
+        bra     1$
+2$:
+        puls    x,pc

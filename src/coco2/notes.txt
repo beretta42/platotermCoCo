@@ -11,9 +11,10 @@ U* make text mode 'rewrite' in assembler
  * make the keyboard.c's key tables sane
  * load splash screen from disk
  * load prefs from disk?  save space?
- * compile with some optimizations
+ - compile with better better then -O1 optimizations?
  * document key mapping (load in like splash?)
  * document anything
+ * make <cntl-n> also send NEXT, not just <enter>
 
 
 
