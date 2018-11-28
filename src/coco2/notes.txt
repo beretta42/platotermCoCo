@@ -9,13 +9,13 @@ U* make text mode 'rewrite' in assembler
  * touch support
  * speed up lines (assemblize) at least h and v lines
  * make the keyboard.c's key tables sane
- * load splash screen from disk
- * load prefs from disk?  save space?
+ - load splash screen from disk
+ * load prefs module from disk?  save space?
  - compile with better better then -O1 optimizations?
  * document key mapping (load in like splash?)
  * document anything
  * make <cntl-n> also send NEXT, not just <enter>
-
+ * no parity needed on send - get rid of ser_put_clean... modules defs.
 
 
 a sorted list of space offenders(wanted for high 8-bit crimes):

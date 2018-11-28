@@ -8,6 +8,7 @@
  */
 
 #include <stdbool.h>
+#include <stdio.h>
 #include "terminal.h"
 #include "screen.h"
 #include "touch.h"
@@ -18,20 +19,27 @@
 #include "serial.h"
 
 uint8_t already_started=false;
-extern padByte splash[];
-extern short splash_size;
 
 /**
  * greeting(void) - Show terminal greeting
  */
 void greeting(void)
 {
-  ShowPLATO(splash,splash_size);
-  prefs_show_greeting();
-  terminal_initial_position();
+    static uint8_t b[256];
+    int s;
+    FILE *f;
+    f = fopen("SPLASH","r");
+    do {
+	s = fread(b,1,256,f);
+	ShowPLATO(b,s);
+    } while (s);
+    fclose(f);
+    prefs_show_greeting();
+    terminal_initial_position();
 }
 
 
+/* fixme: this should be from the config structure */
 void autocon(void)
 {
     char *p = "tcp connect irata.online 8005\r";
