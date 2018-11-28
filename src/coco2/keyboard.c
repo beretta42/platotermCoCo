@@ -75,7 +75,7 @@ unsigned char kcntl[] = {
     PKEY_ACCESS, 'i', 'q', 'y', '1', '9', 0 /*clear*/,
     PKEY_BACK, 'j', 'r', 'z', '2', ':', 0 /*break*/,
     'c', 'k', PKEY_STOP, 0/*up*/, '3', ';', 0 /*alt*/,
-    PKEY_DATA, PKEY_LAB, 't', 0/*dn*/, '4', ',', 0 /*cntl*/,
+    PKEY_DATA, PKEY_LAB, PKEY_TERM, 0/*dn*/, '4', ',', 0 /*cntl*/,
     PKEY_EDIT, 'm', 'u', 0/*lf*/, '5', '-', 0 /*f1*/,
     'f', 'n', 'v', 0/*rt*/, '6', '.', 0 /*f2*/,
     'g', 'o', 'w', ' ', '7', '/', 0 /*shift*/,
@@ -83,12 +83,12 @@ unsigned char kcntl[] = {
 
 /* keycode to plato shift-cntls */
 unsigned char kshcntl[] = {
-    '@', 0x35, 'p', 'x', '0', '8', 0x33 /*enter*/,
-    0x3c, 'i', 'q', 'y', '1', '9', 0 /*clear*/,
-    0x38, 'j', 'r', 'z', '2', ':', 0 /*break*/,
-    'c', 'k', 0x3a, 0/*up*/, '3', ';', 0 /*alt*/,
-    0x39, 0x3d, 't', 0/*dn*/, '4', ',', 0 /*cntl*/,
-    0x37, 'm', 'u', 0/*lf*/, '5', '-', 0 /*f1*/,
+    '@', PKEY_HELP1, 'p', 'x', '0', '8', 0x33 /*enter*/,
+    PKEY_ACCESS, 'i', 'q', 'y', '1', '9', 0 /*clear*/,
+    PKEY_BACK1, 'j', 'r', 'z', '2', ':', 0 /*break*/,
+    'c', 'k', PKEY_STOP1, 0/*up*/, '3', ';', 0 /*alt*/,
+    PKEY_DATA1, PKEY_LAB1, PKEY_TERM, 0/*dn*/, '4', ',', 0 /*cntl*/,
+    PKEY_EDIT1, 'm', 'u', 0/*lf*/, '5', '-', 0 /*f1*/,
     'f', 'n', 'v', 0/*rt*/, '6', '.', 0 /*f2*/,
     'g', 'o', 'w', 0x60, '7', 0x7d, 0 /*shift*/,
 };
