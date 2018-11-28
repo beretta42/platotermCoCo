@@ -1,2 +1,56 @@
-* add .c prerequisits to Makefile
+TODO:
 
+ * add .c prerequisits to Makefile
+ * get rid of non coco stuff
+ * uart port driver
+ * coco3 graphics driver
+U* make text mode 'rewrite' in assembler
+ * make graphics drivers loadable
+ * touch support
+ * speed up lines (assemblize) at least h and v lines
+ * make the keyboard.c's key tables sane
+ * load splash screen from disk
+ * load prefs from disk?  save space?
+ * compile with some optimizations
+ * document key mapping (load in like splash?)
+ * document anything
+
+
+
+a sorted list of space offenders(wanted for high 8-bit crimes):
+
+cat plato.map | grep _len | sort -rk8
+Symbol: .text_len (<synthetic>) = 2CC9
+Symbol: .data_len (<synthetic>) = 180B
+Symbol: .bss_len (<synthetic>) = 05BA
+
+cat plato.map | grep Section\:\ \.text | sort -rk8
+Section: .text (protocol.o) load at 1934, length 0E53
+Section: .text (coco.o) load at 2BB5, length 0A0A
+Section: .text (prefs_base.o) load at 1153, length 07E1
+Section: .text (screen_base.o) load at 2787, length 02EE
+Section: .text (keyboard.o) load at 35BF, length 029D
+Section: .text (io_base.o) load at 0EE4, length 01B3
+Section: .text (tgi.o) load at 3878, length 0184
+Section: .text (config_base.o) load at 0E00, length 00E4
+Section: .text (terminal.o) load at 2A75, length 00BE
+Section: .text (file.o) load at 39FC, length 008D
+Section: .text (touch_base.o) load at 2B33, length 0082
+Section: .text (plato.o) load at 10DB, length 0078
+Section: .text (keyboard_base.o) load at 1097, length 0044
+Section: .text (crt0.o) load at 3A89, length 0040
+Section: .text (serial.o) load at 385C, length 001C
+
+
+cat plato.map | grep Section\:\ \.data | sort -rk8
+Section: .data (scale.o) load at 3C0A, length 0B7E
+Section: .data (font.o) load at 4788, length 0502
+Section: .data (splash.o) load at 4C8A, length 04C3
+Section: .data (keyboard.o) load at 514D, length 0185
+Section: .data (protocol.o) load at 3B00, length 0104
+Section: .data (keyboard_base.o) load at 3ACA, length 0035
+Section: .data (screen_base.o) load at 3C04, length 0004
+Section: .data (file.o) load at 52D2, length 0002
+Section: .data (coco.o) load at 3C08, length 0002
+Section: .data (plato.o) load at 3AFF, length 0001
+Section: .data (io_base.o) load at 3AC9, length 0001
