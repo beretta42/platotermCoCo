@@ -17,6 +17,7 @@ TODO:
  * make <cntl-n> also send NEXT, not just <enter>
  - no parity needed on send - get rid of ser_put_clean... modules defs.
  * access key split-out
+ * incorrect <chevron> mapping to <?>   ??? (check font table lookups)
 
 a sorted list of space offenders(wanted for high 8-bit crimes):
 
