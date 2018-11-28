@@ -11,10 +11,9 @@
 	.dw	_ser_open	; 2
 	.dw	_ser_close	; 4
 	.dw	_ser_put	; 6
-	.dw	_ser_put_clean	; 8
-	.dw	_ser_get	; a
-	.dw	poll		; c
-	.dw	_ser_init	; e
+	.dw	_ser_get	; 8
+	.dw	poll		; 10
+	.dw	_ser_init	; 12
 	
 	.area	.text
 
@@ -59,35 +58,6 @@ _ser_close
 ;;; Send a byte to vport
 ;;;    char ser_put(char c);
 _ser_put
-	;; make 7E1 parity :) fixme: something better?
-	pshs	b
-	;; bit 0
-	clra
-	lsrb
-	adca	#0
-	;; bit 1
-	lsrb
-	adca	#0
-	;; bit 2
-	lsrb
-	adca	#0
-	;; bit 3
-	lsrb
-	adca	#0
-	;; bit 4
-	lsrb
-	adca	#0
-	;; bit 5 
-	lsrb
-	adca	#0
-	;; bit 6
-	lsrb
-	adca	#0
-	;; done
-	rora
-	rorb
-	orb	,s+
-_ser_put_clean
 	pshs	y		; save regs
 	;; send to DW
 	lda	#1		; channel no

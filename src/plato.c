@@ -44,7 +44,7 @@ void autocon(void)
 {
     char *p = "tcp connect irata.online 8005\r";
     while (*p)
-	ser_put_clean(*p++);
+	ser_put(*p++);
 }
 
 void main(void)

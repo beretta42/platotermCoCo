@@ -181,7 +181,7 @@ void keyboard_main(void){
 		k = satab[k-1];
 	    else
 		k = atab[k-1];
-	    ser_put_clean(k);
+	    ser_put(k);
 	    screen_tty_char(k);
 	} 
 	else {

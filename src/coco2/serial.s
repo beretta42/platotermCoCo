@@ -6,7 +6,6 @@
 	.area	.text
 
 	export	_ser_put
-	export  _ser_put_clean
 	export  _ser_open
 	export  _ser_get
 	export  _ser_close
@@ -26,12 +25,10 @@ _ser_close
 _ser_put
 	jmp	[BASE+6]
 	
-_ser_put_clean
-	jmp	[BASE+8]
 ;;; Gets a byte from vport
 ;;;   char ser_get(char *c);
 _ser_get
-	jmp	[BASE+10]
+	jmp	[BASE+8]
 ;;; poll the drivewire server for bytes
 ;;;   This routine should be called under the interrupt thread.
 ;;;   no polling will happen while the main thread (via ser_get)
@@ -39,7 +36,7 @@ _ser_get
 ;;;   queue processing.
 ;;; 
 poll
-	jmp	[BASE+12]
+	jmp	[BASE+10]
 
 _ser_init
-	jmp	[BASE+14]
+	jmp	[BASE+12]
