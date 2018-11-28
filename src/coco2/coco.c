@@ -68,9 +68,11 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     int r = 0;
     uint8_t *p = (uint8_t *)ptr;
     size_t num = 0;
+    size_t s;
     DEVNUM = 1;
     while(nmemb--){
-	while(size--){
+	s = size;
+	while(s--){
 	    r = read_ll();
 	    if (r < 0)
 		goto out;
