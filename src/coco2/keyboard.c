@@ -52,7 +52,7 @@ unsigned char knone[] = {
     'B', 'J', 'R', 'Z', 0x02, PKEY_COLON, 0 /*break*/,
     'C', 'K', 'S', 0x0c, 0x03, PKEY_SEMICOLON, 0 /*alt*/,
     'D', 'L', 'T', 0/*dn*/, 0x04, PKEY_COMMA, 0 /*cntl*/,
-    'E', 'M', 'U', PKEY_BACKSPACE/*lf*/, 0x05, PKEY_MINUS, 0 /*f1*/,
+    'E', 'M', 'U', PKEY_ERASE/*lf*/, 0x05, PKEY_MINUS, 0 /*f1*/,
     'F', 'N', 'V', 0/*rt*/, 0x06, PKEY_PERIOD, 0 /*f2*/,
     'G', 'O', 'W', PKEY_SPACE, 0x07, PKEY_SLASH, 0 /*shift*/,
 };
