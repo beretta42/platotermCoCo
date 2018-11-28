@@ -252,10 +252,17 @@ void screen_char_draw(padPt* Coord, unsigned char* ch, unsigned char count)
     /* the diet chardraw routine - fast text output. */
     for (i = 0; i < count; ++i) {
 #ifdef FAST_TEXT
-	if (CurMode == ModeWrite)
+	switch (CurMode) {
+	case ModeWrite:
 	    tgi_char_blit(x,y,*ch++);
-	else
+	    break;
+	case ModeErase:
 	    tgi_char_blit_erase(x,y,*ch++);
+	    break;
+	case ModeRewrite:
+	    tgi_char_blit_rewrite(x,y,*ch++);
+	    break;
+	}
 #else
 	a = *ch;
 	++ch;

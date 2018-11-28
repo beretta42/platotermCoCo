@@ -4,7 +4,7 @@ TODO:
  * get rid of non coco stuff
  * uart port driver
  * coco3 graphics driver
-U* make text mode 'rewrite' in assembler
+ - make text mode 'rewrite' in assembler
  * make graphics drivers loadable
  * touch support
  * speed up lines (assemblize) at least h and v lines

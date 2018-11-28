@@ -3,6 +3,7 @@
 	export _tgi_cset
 	export _tgi_char_blit
 	export _tgi_char_blit_erase
+	export _tgi_char_blit_rewrite
 	export _tgi_hline
 
 	import _font
@@ -218,6 +219,81 @@ a@	lsrb
 b@	comb
 	andb	,y
 	stb	,y
+	leay	32,y
+	puls	b,pc
+
+;;; put a char on screen - rewrite mode
+;;;   b x y, u, r y
+_tgi_char_blit_rewrite
+	pshs	b,x,y,u
+	;; u = find ptr to glyph
+	subb	#32
+	lda	#6
+	mul
+	addd	#_font
+	tfr	d,u
+	;; y = find screen ptr
+	tfr	x,d
+	lsrb
+	lsrb
+	lsrb
+	pshs	d
+	ldb	12,s
+	lda	#32
+	mul
+	addd	,s++
+	addd	#$6000
+	tfr	d,y
+	;; tos = find rotation
+	ldb	2,s
+	andb	#7
+	pshs	b
+	;; find masks
+	pshs	b
+	ldd	#$f000
+	tst	,s
+	beq	a@
+b@	lsra
+	rorb
+	dec	,s
+	bne	b@
+a@	leas	1,s
+	coma
+	comb
+	sta	smc10+1
+	stb	smc10+3
+	;; blit
+	lda	,u+
+	bsr	foo2
+	lda	,u+
+	bsr	foo2
+	lda	,u+
+	bsr	foo2
+	lda	,u+
+	bsr	foo2
+	lda	,u+
+	bsr	foo2
+	lda	,u+
+	bsr	foo2
+	;; return
+	puls	d,x,y,u,pc
+
+foo2	ldb	2,s
+	pshs	b
+	clrb
+	tst	,s
+	beq	b@
+a@	lsra
+	rorb
+	dec	,s
+	bne	a@
+b@	pshs	d
+	ldd	,y
+smc10	anda	#0
+	andb	#0
+	ora	,s+
+	orb	,s+
+	std	,y
 	leay	32,y
 	puls	b,pc
 
