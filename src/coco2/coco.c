@@ -497,8 +497,8 @@ void tgi_bar (int x1, int y1, int x2, int y2)
     x = x1 < x2 ? x1 : x2;
     y = y1 < y2 ? y1 : y2;
     do {
-        tgi_hline(x,y++,w);
-    } while (h--);   
+        tgi_vline(x++,y,h);
+    } while (w--);
 }
 
 void tgi_init (void)

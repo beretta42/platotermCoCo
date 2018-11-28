@@ -5,6 +5,7 @@
 	export _tgi_char_blit_erase
 	export _tgi_char_blit_rewrite
 	export _tgi_hline
+	export _tgi_vline
 
 	import _font
 
@@ -62,9 +63,11 @@ _tgi_cset
 	ldx	#tab
 	stx	smc1+2
 	stx	smc3+1
+	stx	smc11+1
 	ldb	#$ea
 	stb	smc2
 	stb	smc5
+	stb	smc12
 	ldb	#$80
 	stb	smc4+1
 	ldb	#$24
@@ -74,9 +77,11 @@ a@
 	ldx	#tabi
 	stx	smc1+2
 	stx	smc3+1
+	stx	smc11+1
 	ldb	#$e4
 	stb	smc2
 	stb	smc5
+	stb	smc12
 	ldb	#~$80
 	stb	smc4+1
 	ldb	#$25
@@ -297,6 +302,39 @@ smc10	anda	#0
 	leay	32,y
 	puls	b,pc
 
+
+;;; draw a vertial line
+;;; t X y r Y H
+_tgi_vline:
+	pshs	x,y
+	;; y = find screen ptr
+	tfr	x,d
+	lsrb
+	lsrb
+	lsrb
+	pshs	d
+	ldb	9,s
+	lda	#32
+	mul
+	addd	,s++
+	addd	#$6000
+	tfr	d,y
+	;; b = mask
+	ldb	1,s
+	andb	#7
+smc11	ldx	#tab
+	ldb	b,x
+	stb	smc12+1
+	lda	9,s
+	pshs	a
+a@	ldb	,y
+smc12	orb	#0
+	stb	,y
+	dec	,s
+	beq	b@
+	leay	32,y
+	bra	a@
+b@	puls	b,x,y,pc
 
 ;;; draw a horizontal line
 ;;;   X y r Y W
