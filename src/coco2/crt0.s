@@ -26,6 +26,7 @@ a@	clr	,x+		;
 	leay	-1,y		;
 	bne	a@		;
 	andcc	#~$50		; on interrupts
+	jmp	do_joy
 	jmp	_main		; jump to C's main
 
 noop	rts
