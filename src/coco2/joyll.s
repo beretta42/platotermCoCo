@@ -8,7 +8,7 @@
 
 	
 _poll_joy:
-	lslb
+	select: lslb
 	lslb
 	lslb
 	pshs	b

@@ -26,7 +26,6 @@ a@	clr	,x+		;
 	leay	-1,y		;
 	bne	a@		;
 	andcc	#~$50		; on interrupts
-	jmp	do_joy
 	jmp	_main		; jump to C's main
 
 noop	rts
@@ -36,6 +35,7 @@ interrupt:
 	addd	#1
 	std	_timer
         lda     $ff02           ; clear vsync pia
+	jsr	_do_joy
         jsr     _kpoll          ; go poll keyboard
 	tst	_enable_poll	; is call serial polling ok
 	beq	a@		; nope - skip
