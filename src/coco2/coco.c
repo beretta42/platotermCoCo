@@ -448,14 +448,13 @@ unsigned char mouse_unload (void)
 unsigned char mouse_load_driver (const struct mouse_callbacks* c,
 				 const char* driver)
 {
-}
-
-void mouse_show (void)
-{
+    return MOUSE_ERR_OK;
 }
 
 void mouse_move (int x, int y)
 {
+    /* cant be done for absolute joystick ! */
+    /* but still needs to be done for relative schemes */
 }
 
 unsigned char mouse_uninstall (void)

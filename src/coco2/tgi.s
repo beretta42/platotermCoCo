@@ -6,6 +6,8 @@
 	export _tgi_char_blit_rewrite
 	export _tgi_hline
 	export _tgi_vline
+	export _tgi_put_mouse
+	export _tgi_unput_mouse
 
 	import _font
 
@@ -372,3 +374,56 @@ smc4	ldb	#$80
 b@	deca
 	bne	a@
 	puls	b,x,y,pc
+
+mouse	.dw	0x8000, 0xe000, 0xf800, 0xfc00, 0xf000, 0x9800, 0x0c00, 0x0600
+	.dw	0x0800, 0x0e00, 0x0f80, 0x0fc0, 0x0f00, 0x0980, 0x00c0, 0x0060
+	.dw	0x8000, 0xe000, 0xf800, 0xfc00, 0xf000, 0x9800, 0x0c00, 0x0600
+	.dw	0x4000, 0x7000, 0x7c00, 0x7e00, 0x7800, 0x4c00, 0x0600, 0x0300
+	.dw	0x2000, 0x3800, 0x3e00, 0x3f00, 0x3c00, 0x2600, 0x0300, 0x0180
+	.dw	0x1000, 0x1c00, 0x1f00, 0x1f80, 0x1e00, 0x1300, 0x0180, 0x00c0
+	.dw	0x0800, 0x0e00, 0x0f80, 0x0fc0, 0x0f00, 0x0980, 0x00c0, 0x0060
+	.dw	0x0400, 0x0700, 0x07c0, 0x07e0, 0x0780, 0x04c0, 0x0060, 0x0030
+	.dw	0x0200, 0x0380, 0x03e0, 0x03f0, 0x03c0, 0x0260, 0x0030, 0x0018
+	.dw	0x0100, 0x01c0, 0x01f0, 0x01f8, 0x01e0, 0x0130, 0x0018, 0x000c
+_tgi_put_mouse:
+_tgi_unput_mouse:
+	;; X y u r Y
+	pshs	x,y,u
+	tfr	x,d
+	andb	#7
+	pshs	b		; push modulus 8
+	tfr	x,d
+	lsrb
+	lsrb
+	lsrb
+	pshs	b		; push row offset
+	ldb	11,s		; get Y
+	lda	#32
+	mul
+	addb	,s+		; add offset
+	adca	#0		; 16-bitify add
+	addd	#$6000		; add screen base
+	tfr	d,x		; X = screen bytes
+	ldb	,s+		; pull modulus (bit shifts)
+	lda	#16
+	mul
+	addd	#mouse
+	tfr	d,y
+	ldb	#4
+	pshs	b
+	;; begin loop
+a@
+	ldd	,y++		; get first row
+	eora	,x		; xor to screen data
+	eorb	1,x		;
+	std	,x		; and save back to screen
+	leax	32,x		; next row
+	ldd	,y++		; get first row
+	eora	,x		; xor to screen data
+	eorb	1,x		;
+	std	,x		; and save back to screen
+	leax	32,x		; next row
+	;; loop inc
+	dec	,s
+	bne	a@
+	puls	b,x,y,u,pc	; pull counter, retore, return

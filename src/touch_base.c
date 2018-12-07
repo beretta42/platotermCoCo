@@ -14,10 +14,6 @@
 #include "touch.h"
 #include "config.h"
 
-#ifdef __ATARI__
-#include <atari.h>
-#endif
-
 static padBool TouchActive;
 
 static struct mouse_info mouse_data;
@@ -35,23 +31,12 @@ extern uint16_t scalety[];
  */
 void touch_init(void)
 {
-#ifndef __APPLE2__
-  if (strcmp(config.driver_mou,"NONE")==0)
-    return;
+    if (strcmp(config.driver_mou,"NONE")==0)
+	return;
   
-  if (mouse_load_driver(&mouse_def_callbacks,config.driver_mou) == MOUSE_ERR_OK)
-    {
-      mouse_present=true;
-      mouse_show();
-#ifdef __ATARI__
-      POKE(0xD000,0);
-      POKE(0xD001,0);
-      /* POKE(0xD002,0); */
-      POKE(0xD003,0);
-#endif /* __ATARI__ */
+    if (mouse_load_driver(&mouse_def_callbacks,config.driver_mou) == MOUSE_ERR_OK) {
+	mouse_present=true;
     }
-#endif /* __APPLE2__ */
-  
 }
 
 /**
@@ -59,23 +44,7 @@ void touch_init(void)
  */
 void touch_allow(padBool allow)
 {
-#ifndef __APPLE2__
-  /* // If mouse is off screen (due to previously being moved off screen, move onscreen to make visible. */
-  /* if (allow) */
-  /*   { */
-  /*     mouse_move(previous_mouse_x,previous_mouse_y); */
-  /*   } */
-  /* else */
-  /*   { */
-  /*     if (mouse_data.pos.x != screen_w && mouse_data.pos.y != screen_h) */
-  /* 	{ */
-  /* 	  previous_mouse_x = mouse_data.pos.x; */
-  /* 	  previous_mouse_y = mouse_data.pos.y; */
-  /* 	  mouse_move(screen_w,screen_h); */
-  /* 	} */
-  /*   } */
   TouchActive=allow;
-#endif
 }
 
 /**
@@ -83,25 +52,23 @@ void touch_allow(padBool allow)
  */
 void touch_main(void)
 {
-#ifndef __APPLE2__
-  uint8_t lastbuttons;
+  static uint8_t lastbuttons;
   padPt coord;
-
-  if (mouse_present==false)
-    return;
+  di();
+  //if (mouse_present==false) fixme: why not finding mouse?
+  //    goto out;
   
-  mouse_info(&mouse_data);
-  
-  if (mouse_data.buttons == lastbuttons)
-    return; /* debounce */
-  else if ((mouse_data.buttons & MOUSE_BTN_LEFT))
+  if (mouse_b == lastbuttons)
+    goto out; /* debounce */
+  else if (mouse_b & MOUSE_BTN_LEFT)
     {
-      coord.x = scaletx[mouse_data.pos.x];
-      coord.y = scalety[mouse_data.pos.y];
+      coord.x = scaletx[mouse_x*4];
+      coord.y = scalety[mouse_y*3];
       Touch(&coord);
     }
-  lastbuttons = mouse_data.buttons;
-#endif 
+  lastbuttons = mouse_b;
+ out:
+  ei();
 }
 
 /**
@@ -109,9 +76,7 @@ void touch_main(void)
  */
 void touch_hide(void)
 {
-#ifndef __APPLE2__
-  mouse_move(screen_w,screen_h);
-#endif
+
 }
 
 /**
@@ -119,8 +84,5 @@ void touch_hide(void)
  */
 void touch_done(void)
 {
-#ifndef __APPLE2__
-  if (mouse_present==true)
-    mouse_uninstall();
-#endif
+
 }

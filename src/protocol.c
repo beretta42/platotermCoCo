@@ -779,6 +779,8 @@ DataChar (void)
 void
 ShowPLATO (padByte *buff, uint16_t count)
 {
+  if (count)
+    mouse_hide();
   while (count--)
     {
       theChar = *buff++;
@@ -975,6 +977,7 @@ ShowPLATO (padByte *buff, uint16_t count)
       screen_char_draw (&charCoord, charBuff, charCount);
       charCount = 0;
     }
+  mouse_show();
 }
 
 /**
