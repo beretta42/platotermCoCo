@@ -45,8 +45,8 @@ higher:	addb	,s+
 c@	lsra
 	cmpa	#1
 	bne	a@
-	lsrb
-	lsrb
 	clra
+	lslb
+	rola
 	tfr	d,x
 	rts

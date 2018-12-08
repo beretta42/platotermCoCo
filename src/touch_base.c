@@ -23,8 +23,6 @@ static uint8_t mouse_present=false;
 static uint8_t mou_res=0;
 
 extern ConfigInfo config;
-extern uint16_t scaletx[];
-extern uint16_t scalety[];
 
 /**
  * touch_init() - Set up touch screen
@@ -62,8 +60,8 @@ void touch_main(void)
     goto out; /* debounce */
   else if (mouse_b & MOUSE_BTN_LEFT)
     {
-      coord.x = scaletx[mouse_x*4];
-      coord.y = scalety[mouse_y*3];
+      coord.x = mouse_x;
+      coord.y = 511 - mouse_y;
       Touch(&coord);
     }
   lastbuttons = mouse_b;

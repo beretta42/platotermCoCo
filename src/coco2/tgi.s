@@ -389,6 +389,20 @@ _tgi_put_mouse:
 _tgi_unput_mouse:
 	;; X y u r Y
 	pshs	x,y,u
+	;; adjust from mouse 512x512 to screen ratio (256x192)
+	tfr	x,d		; adjust X
+	lsra
+	rorb
+	tfr	d,x
+	ldd	8,s
+	lsra			; divide by 4 to get 2y
+	rorb
+	lsrb
+	pshs	b		; push 2y
+	lsrb			; b = 1y
+	addb	,s+		; add together for 3y
+	std	8,s
+	;; 
 	tfr	x,d
 	andb	#7
 	pshs	b		; push modulus 8

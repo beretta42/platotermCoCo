@@ -10,6 +10,8 @@
 
 uint16_t poll_joy(uint8_t axis);
 
+/* we'll store our x and y coords in 9 bits
+   so we don't have to know our screen res here */
 int mouse_x;
 int mouse_y;
 int mouse_b;
@@ -17,15 +19,15 @@ int mouse_b;
 static int hidden = 1;
 
 void do_joy(void) {
-    uint8_t x1 = 0;
-    uint8_t y1 = 0;
+    int x1 = 0;
+    int y1 = 0;
     uint8_t nb;
     x1 = poll_joy(0);
     y1 = poll_joy(1);
     if (hidden == 0) {
 	if ((x1 != mouse_x) || (y1 != mouse_y)){
-	    tgi_unput_mouse(mouse_x*4,mouse_y*3);
-	    tgi_put_mouse(x1*4,y1*3);
+	    tgi_unput_mouse(mouse_x,mouse_y);
+	    tgi_put_mouse(x1,y1);
 	}
     }
     mouse_x = x1;
@@ -37,14 +39,14 @@ void do_joy(void) {
 
 void mouse_show(void) {
     if (hidden == 1){
-	tgi_put_mouse(mouse_x*4, mouse_y*3);
+	tgi_put_mouse(mouse_x, mouse_y);
 	hidden = 0;
     }
 }
 
 void mouse_hide(void) {
     if (hidden == 0){
-	tgi_unput_mouse(mouse_x*4, mouse_y*3);
+	tgi_unput_mouse(mouse_x, mouse_y);
 	hidden = 1;
     }
 }
