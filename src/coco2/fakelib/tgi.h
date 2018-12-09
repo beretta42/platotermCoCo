@@ -19,9 +19,9 @@ void tgi_done (void);
 void tgi_uninstall (void);
 
 void tgi_cset(unsigned char color);
-void tgi_char_blit(int x, int y, unsigned char c);
-void tgi_char_blit_erase(int x, int y, unsigned char c);
-void tgi_char_blit_rewrite(int x, int y, unsigned char c);
+void tgi_char_blit(int x, int y, unsigned char *p);
+void tgi_char_blit_erase(int x, int y, unsigned char *p);
+void tgi_char_blit_rewrite(int x, int y, unsigned char *p);
 void tgi_hline(int x, int y, int w);
 void tgi_vline(int x, int y, int h);
 void tgi_put_mouse(int x, int y);

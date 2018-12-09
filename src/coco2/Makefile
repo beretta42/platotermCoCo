@@ -43,7 +43,7 @@ plato.bin: font.c scale.c coco.c crt0.o
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	../screen_base.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	../terminal.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	../touch_base.c
-	$(CROSS_CC) $(CROSS_CC_OPT) -c	coco.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -O0 -c	coco.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	scale.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	font.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c  keyboard.c

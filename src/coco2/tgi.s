@@ -112,15 +112,11 @@ tabi
 
 
 ;;; put a char on screen
-;;;   b x y, u, r y
+;;;   b x y, u, r y ptr
 _tgi_char_blit
 	pshs	b,x,y,u
 	;; u = find ptr to glyph
-	subb	#32
-	lda	#6
-	mul
-	addd	#_font
-	tfr	d,u
+	ldu	11,s
 	;; y = find screen ptr
 	tfr	x,d
 	lsrb
@@ -171,15 +167,11 @@ b@	orb	,y
 
 
 ;;; put a char on screen
-;;;   b x y, u, r y
+;;;   b x y, u, r y ptr
 _tgi_char_blit_erase
 	pshs	b,x,y,u
 	;; u = find ptr to glyph
-	subb	#32
-	lda	#6
-	mul
-	addd	#_font
-	tfr	d,u
+	ldu	11,s
 	;; y = find screen ptr
 	tfr	x,d
 	lsrb
@@ -230,15 +222,11 @@ b@	comb
 	puls	b,pc
 
 ;;; put a char on screen - rewrite mode
-;;;   b x y, u, r y
+;;;   b x y, u, r y ptr
 _tgi_char_blit_rewrite
 	pshs	b,x,y,u
 	;; u = find ptr to glyph
-	subb	#32
-	lda	#6
-	mul
-	addd	#_font
-	tfr	d,u
+	ldu	11,s
 	;; y = find screen ptr
 	tfr	x,d
 	lsrb
