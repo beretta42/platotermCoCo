@@ -12,7 +12,7 @@ all: plato.dsk
 	$(MAKE) -C ../tools
 
 scale.c: ../tools/mk_scale
-	../tools/mk_scale 256 192 > scale.c
+	../tools/mk_scale -n 256 192 > scale.c
 
 font.c: ../tools/mk_font
 	../tools/mk_font > font.c
