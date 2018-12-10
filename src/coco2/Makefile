@@ -48,6 +48,7 @@ plato.bin: font.c scale.c coco.c crt0.o
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	font.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c  keyboard.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c  joy.c
+	$(CROSS_CC) $(CROSS_CC_OPT) -c  terminal_char_load.c
 	$(CROSS_AS) -o serial.o serial.s
 	$(CROSS_AS) -o tgi.o tgi.s
 	$(CROSS_AS) -o file.o file.s
@@ -56,7 +57,7 @@ plato.bin: font.c scale.c coco.c crt0.o
 	-o plato.bin crt0.o config_base.o io_base.o \
 	keyboard_base.o plato.o prefs_base.o protocol.o screen_base.o \
 	terminal.o touch_base.o coco.o scale.o font.o keyboard.o \
-	serial.o tgi.o file.o joy.o joyll.o
+	serial.o tgi.o file.o joy.o joyll.o terminal_char_load.o
 
 plato.dsk: plato.bin dwbkr.mod dwbit.mod splash.dat
 	rm -f plato.dsk

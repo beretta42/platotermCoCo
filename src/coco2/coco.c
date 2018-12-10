@@ -382,21 +382,6 @@ void screen_init_hook(void)
     *(unsigned char *)0xffd2 = 0x00;
 }
 
-/*
-void keyboard_main(void)
-{
-}
-
-void keyboard_clear(void)
-{
-}
-*/
-
-void terminal_char_load(padWord charnum, charData theChar)
-{
-}
-
-
 
 /**********************
  Misc CC65 libs
