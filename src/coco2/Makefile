@@ -68,7 +68,10 @@ plato.dsk: plato.bin dwbkr.mod dwbit.mod splash.dat
 	decb copy -b -3 dwbit.mod plato.dsk,DWBIT
 	decb copy -b -3 splash.dat plato.dsk,SPLASH
 
+plato.zip: plato.dsk README.md
+	zip plato.zip plato.dsk README.md
+
 clean:
 	rm -f font.c scale.c plato.bin plato.dsk *~ *.o *.map *.mod \
-	splash.dat
+	splash.dat plato.zip
 	cd ../tools; rm -f mk_ascii_key_h mk_font mk_scale
