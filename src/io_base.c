@@ -55,6 +55,10 @@ void io_init(void)
       prefs_display("dw bitbanger driver loaded");
       io_res = ser_load_driver("DWBIT");
       break;
+  case IO_MODE_RS232:
+      prefs_display("rs232 driver loaded");
+      io_res = ser_load_driver("RS232");
+      break;
   default:
       io_res = 1;
       break;

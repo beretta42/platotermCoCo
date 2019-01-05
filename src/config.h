@@ -12,6 +12,7 @@
 
 #define IO_MODE_DWBECKER      0
 #define IO_MODE_DWBITBANGER   1
+#define IO_MODE_RS232         2
 #define IO_MODE_SERIAL        16
 #define IO_MODE_ETHERNET      32
 

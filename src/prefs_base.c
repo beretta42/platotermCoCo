@@ -304,9 +304,9 @@ void prefs_baud(void)
  */
 void prefs_interface(void)
 {
-  prefs_display("drivewire over: 1)becker 2)bitbanger b)ack: ");
+  prefs_display("drivewire over: 1)becker 2)bitbanger 3) rs232 pak b)ack: ");
 
-  ch=prefs_get_key_matching("12b");
+  ch=prefs_get_key_matching("123b");
 
   switch(ch)
     {
@@ -325,6 +325,12 @@ void prefs_interface(void)
     case '2':
       prefs_select("bitbanger");
       config.io_mode = IO_MODE_DWBITBANGER;
+      io_prefs_updated = true;
+      prefs_need_updating = true;
+      break;
+    case '3':
+      prefs_select("rs232");
+      config.io_mode = IO_MODE_RS232;
       io_prefs_updated = true;
       prefs_need_updating = true;
       break;
@@ -631,6 +637,9 @@ void prefs_update(void)
 	  break;
       case IO_MODE_DWBITBANGER:
 	  ser_load_driver("DWBIT");
+	  break;
+      case IO_MODE_RS232:
+	  ser_load_driver("RS232");
 	  break;
       }
       io_init_funcptrs();

@@ -33,6 +33,11 @@ dwbit.mod: dwmod.s sermod.link
 	$(CROSS_LD) -Map=dwbit.map --oformat=decb \
 	--script=sermod.link -o dwbit.mod dwbit.o
 
+rs232.mod: 6551.s sermod.link
+	$(CROSS_AS) -o rs232.o 6551.s
+	$(CROSS_LD) -Map=rs232.map --oformat=decb \
+	--script=sermod.link -o rs232.mod rs232.o
+
 plato.bin: font.c scale.c coco.c crt0.o
 	$(CROSS_CC) $(CROSS_CC_OPT) -c ../config_base.c
 	$(CROSS_CC) $(CROSS_CC_OPT) -c	../io_base.c 
@@ -59,13 +64,14 @@ plato.bin: font.c scale.c coco.c crt0.o
 	terminal.o touch_base.o coco.o scale.o font.o keyboard.o \
 	serial.o tgi.o file.o joy.o joyll.o terminal_char_load.o
 
-plato.dsk: plato.bin dwbkr.mod dwbit.mod splash.dat
+plato.dsk: plato.bin dwbkr.mod dwbit.mod rs232.mod splash.dat
 	rm -f plato.dsk
 	decb dskini plato.dsk
 	decb copy -b -2 plato.bin plato.dsk,PLATO.BIN
 	decb copy -a -0 -l AUTOEXEC.BAS plato.dsk,AUTOEXEC.BAS
 	decb copy -b -3 dwbkr.mod plato.dsk,DWBKR
 	decb copy -b -3 dwbit.mod plato.dsk,DWBIT
+	decb copy -b -3 rs232.mod plato.dsk,RS232
 	decb copy -b -3 splash.dat plato.dsk,SPLASH
 
 plato.zip: plato.dsk README.md
