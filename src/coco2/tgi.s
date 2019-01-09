@@ -69,6 +69,7 @@ _tgi_cset
 	ldb	#$ea
 	stb	smc2
 	stb	smc5
+	ldb	#$ca
 	stb	smc12
 	ldb	#$80
 	stb	smc4+1
@@ -83,6 +84,7 @@ a@
 	ldb	#$e4
 	stb	smc2
 	stb	smc5
+	ldb	#$c4
 	stb	smc12
 	ldb	#~$80
 	stb	smc4+1
@@ -320,11 +322,10 @@ smc11	ldx	#tab
 a@	ldb	,y
 smc12	orb	#0
 	stb	,y
-	dec	,s
-	beq	b@
 	leay	32,y
-	bra	a@
-b@	puls	b,x,y,pc
+	dec	,s
+	bne	a@
+	puls	b,x,y,pc
 
 ;;; draw a horizontal line
 ;;;   X y r Y W

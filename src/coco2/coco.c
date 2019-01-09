@@ -476,9 +476,7 @@ void tgi_bar (int x1, int y1, int x2, int y2)
     int x;
     int y;
     w = abs(x1 - x2);
-    h = abs(y1 - y2);
-    if (!w || !h)
-	return;
+    h = abs(y1 - y2) + 1;
     x = x1 < x2 ? x1 : x2;
     y = y1 < y2 ? y1 : y2;
     do {
