@@ -56,9 +56,13 @@ void main(void)
   //terminal_init();
   greeting();
   screen_beep();
-  
+
   already_started=true;
-  autocon();
+
+  if (config.valid == 0)
+      prefs_run();
+  else
+      autocon();
   // And do the terminal
   for (;;)
     {

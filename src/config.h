@@ -21,6 +21,7 @@
 
 typedef struct configInfo
 {
+  unsigned char valid;
   unsigned char io_mode;
   unsigned char baud;
   unsigned char use_dhcp;

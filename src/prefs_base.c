@@ -304,7 +304,7 @@ void prefs_baud(void)
  */
 void prefs_interface(void)
 {
-  prefs_display("drivewire over: 1)becker 2)bitbanger 3) rs232 pak b)ack: ");
+  prefs_display("1)dw/becker 2)dw/bitbanger 3) rs232 pak b)ack: ");
 
   ch=prefs_get_key_matching("123b");
 
@@ -321,18 +321,21 @@ void prefs_interface(void)
       config.io_mode = IO_MODE_DWBECKER;
       io_prefs_updated = true;
       prefs_need_updating = true;
+      config.valid = true;
       break;
     case '2':
       prefs_select("bitbanger");
       config.io_mode = IO_MODE_DWBITBANGER;
       io_prefs_updated = true;
       prefs_need_updating = true;
+      config.valid = true;
       break;
     case '3':
       prefs_select("rs232");
       config.io_mode = IO_MODE_RS232;
       io_prefs_updated = true;
       prefs_need_updating = true;
+      config.valid = true;
       break;
     case 'b':
       prefs_select("back");
@@ -591,7 +594,7 @@ void prefs_select(const char* text)
   unsigned char i=0;
   ShowPLATO((unsigned char *)text,strlen(text));
   
-  for (i=0;i<100;i++)
+  for (i=0;i<60;i++)
     {
       screen_wait();
     }
