@@ -42,7 +42,7 @@ void greeting(void)
 /* fixme: this should be from the config structure */
 void autocon(void)
 {
-    char *p = "tcp connect irata.online 8005\r";
+    char *p = "ATDTirata.online:8005\r";
     while (*p)
 	ser_put(*p++);
 }
