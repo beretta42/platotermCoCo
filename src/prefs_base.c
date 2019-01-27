@@ -97,9 +97,9 @@ void prefs_run(void)
  */
 void prefs_serial(void)
 {
-  prefs_display("i)nterface b)aud t)ouch o)ther s)ave e)xit: ");
+  prefs_display("i)nterface s)ave e)xit: ");
 
-  ch=prefs_get_key_matching("ibtoseIBTOSE");
+  ch=prefs_get_key_matching("iseISE");
 
   switch(ch)
     {
@@ -107,7 +107,7 @@ void prefs_serial(void)
       prefs_select("interface");
       prefs_interface();
       break;
-    case 'b':
+      /*    case 'b':
       prefs_select("baud");
       prefs_baud();
       break;
@@ -118,7 +118,7 @@ void prefs_serial(void)
     case 'o':
       prefs_select("other");
       prefs_other();
-      break;
+      break; */
     case 's':
       prefs_select("save");
       prefs_save();
