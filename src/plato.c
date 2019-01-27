@@ -61,8 +61,10 @@ void main(void)
 
   if (config.valid == 0)
       prefs_run();
+  /*
   else
       autocon();
+  */
   // And do the terminal
   for (;;)
     {
