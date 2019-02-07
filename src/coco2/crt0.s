@@ -16,7 +16,11 @@ _enable_poll
 	.db	0
 
 start:	orcc	#$50		; off interrupts
-	ldx	#noop
+	lda	$fffc		; are we a coco3?
+	cmpa	#$fe
+	bne	b@
+	sta	$ffd9		; high speed poke
+b@	ldx	#noop
 	stx	$5c0c
 	ldx	#interrupt	; set interrupt vector
 	stx	$10d		;
