@@ -180,8 +180,11 @@ void io_init_funcptrs(void)
     io_recv_serial_flow_on = noop;
 }
 
+int io_echof;
 void io_send_byte(uint8_t b)
 {
+    if (io_echof == 0)
+	return;
     ser_put(b);
 }
 
