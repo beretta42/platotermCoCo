@@ -19,6 +19,10 @@ TODO:
  * access key split-out
  - incorrect <chevron> mapping to <?>   ??? (check font table lookups)
  * keyboard: mask joystick buttons
+ * consider flow control methods for serial drivers
+ * fix scaling: seems to be rounding errors
+ * get rid of ser_init() method?
+ * key echo in TTY mode
 
 a sorted list of space offenders(wanted for high 8-bit crimes):
 
