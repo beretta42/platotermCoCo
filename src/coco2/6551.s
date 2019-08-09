@@ -76,9 +76,9 @@ _ser_open:
 	pshs	cc
 	orcc	#$50		; off interrupts
 	ldx	#.bss_base	; clear out BSS
-a@	clr	,x+		;
+b@	clr	,x+		;
 	cmpx	#.bss_base+.bss_len ;
-	bne	a@		;
+	bne	b@		;
 	lda	#$22		; set mpi to slot 3
 	sta	MPI		;
 	ldx	FVECT		; save basic's firq vector
