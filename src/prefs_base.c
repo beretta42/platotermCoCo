@@ -25,6 +25,9 @@
 #include "terminal.h"
 #include "config.h"
 
+extern unsigned char font[];
+extern unsigned int fontptr[];
+
 extern ConfigInfo config;
 
 uint8_t prefs_running;
@@ -52,629 +55,243 @@ uint8_t prefs_need_updating;
 uint8_t touch_prefs_updated;
 uint8_t io_prefs_updated;
 
+static unsigned char check_up[] = {
+    0b11111100,
+    0b10000100,
+    0b10000100,
+    0b10000100,
+    0b10000100,
+    0b11111100,
+};
+
+
+static unsigned char check_set[] = {
+    0b00000110,
+    0b00001100,
+    0b11011000,
+    0b01110000,
+    0b00110000,
+    0b00000000,
+};
+
+
+static unsigned char check_down[] = {
+    0b11111100,
+    0b10101100,
+    0b11000100,
+    0b10001100,
+    0b11010100,
+    0b11111100,
+};
+
+static unsigned char radio_up[] = {
+    0b01111000,
+    0b11001100,
+    0b10000100,
+    0b10001100,
+    0b11011100,
+    0b01111000,
+};
+
+static unsigned char radio_down[] = {
+    0b01111000,
+    0b11101100,
+    0b11000100,
+    0b10000100,
+    0b11001100,
+    0b01111000,
+};
+
+static unsigned char radio_set[] = {
+    0b01111000,
+    0b11010100,
+    0b10111100,
+    0b11110100,
+    0b10101100,
+    0b01111000,
+};
+
+typedef struct widget_s widget;
+
+struct widget_s {
+    int x;
+    int y;
+    int w;
+    int h;
+    int d;
+    char *t;
+    void (* doev)(widget *w, int e);
+    void (* dowd)(widget *w, int e);
+    widget *next;
+};
+
+widget *head = NULL;
+
+static tgi_puts(int x, int y, char *text) {
+    int todo = strlen(text);
+    while (todo--) {
+	tgi_char_blit(x, y, &font[fontptr[*text++ - 32]]);
+	x += 4;
+    }
+}
+
+static void docheck(widget *w, int e) {
+    tgi_cset(0);
+    tgi_bar( w->x, w->y, w->x+8, w->y+6);
+    switch (e) {
+    case 0:
+	tgi_char_blit(w->x+1, w->y+1, check_up);
+	break;
+    case 1:
+	tgi_char_blit(w->x+1, w->y+1, check_down);
+	break;
+    case 2:
+	tgi_char_blit(w->x+1, w->y+1, check_up);
+	w->d = !w->d;
+	break;
+    }
+    if (w->d)
+        tgi_char_blit(w->x+1, w->y+1, check_set);
+    tgi_puts(w->x + 9, w->y + 1, w->t);
+}
+
+static void doradio(widget *w, int e) {
+    tgi_cset(0);
+    tgi_bar( w->x, w->y, w->x+8, w->y+6);	
+    switch (e) {
+    case 0:
+	tgi_char_blit(w->x+1, w->y+1, radio_up);
+	tgi_puts(w->x + 9, w->y + 1, w->t);
+	break;
+    case 1:
+	tgi_char_blit(w->x+1, w->y+1, radio_down);
+	break;
+    case 2:
+	tgi_char_blit(w->x+1, w->y+1, radio_up);
+	w->d = 1;
+	w->dowd(w, 2);
+	break;
+    }
+    if (w->d)
+	tgi_char_blit(w->x+1, w->y+1, radio_set);
+}
+
+static void drawall(void) {
+    widget *w = head;
+    while (w) {
+	w->doev(w, 0);
+	w = w->next;
+    }
+}
+
+static void widget_add(widget *w) {
+    w->next = head;
+    head = w;
+}
+
+static widget *pcollide(int x, int y) {
+    widget *w = head;
+    while (w) {
+	if (x >= w->x &&
+	    x <= w->x + w->w &&
+	    y >= w->y &&
+	    y <= w->y + w->h)
+	    return w;
+	w = w->next;
+    }
+    return NULL;
+}
+
+
+static void doflow(widget *w, int e);
+static widget hard  = {50, 100, 40, 10, 1, "CTS/RTS", doradio, doflow};
+static widget soft = {50, 110, 45, 10, 0,  "XON/XOFF", doradio, doflow};
+static widget none = {50, 120, 30, 10, 0,  "NONE", doradio, doflow};
+static void doflow(widget *w, int e) {
+    hard.d = 0;
+    soft.d = 0;
+    none.d = 0;
+    w->d = 1;
+    hard.doev(&hard,0);
+    soft.doev(&soft,0);
+    none.doev(&none,0);
+}
+
+
+static void dospeed(widget *w, int e);
+static widget S300 = {50, 130, 30, 10, 1, "300", doradio, dospeed};
+static widget S600 = {50, 140, 30, 10, 1, "600", doradio, dospeed};
+static widget S1200 = {50, 150, 30, 10, 1, "1200", doradio, dospeed};
+static widget S2400 = {50, 160, 30, 10, 1, "2400", doradio, dospeed};
+static widget S4800 = {100, 130, 30, 10, 1, "4800", doradio, dospeed};
+static widget S9600 = {100, 140, 30, 10, 1, "9600", doradio, dospeed};
+static widget S19200 = {100, 150, 30, 10, 1, "19200", doradio, dospeed};
+static widget S115200 = {100, 160, 30, 10, 1, "115200", doradio, dospeed};
+static void dospeed(widget *w, int e) {
+    S300.d = S600.d = S1200.d = S2400.d = S4800.d =
+	S9600.d = S19200.d = S115200.d = 0;
+    w->d = 1;
+    S300.doev(&S300, 0);
+    S600.doev(&S600, 0);
+    S1200.doev(&S1200, 0);
+    S2400.doev(&S2400, 0);
+    S4800.doev(&S4800, 0);
+    S9600.doev(&S9600, 0);
+    S19200.doev(&S19200, 0);
+    S115200.doev(&S115200, 0);
+}
+
+static void doecho(widget *w, int e);
+static widget echo = {50,170,30,10,1, "Local Echo", docheck, doecho};
+static void doecho(widget *w, int e) {
+}
+
 /**
  * Run the preferences menu
  */
 void prefs_run(void)
 {
-  keyboard_clear();
-  TTYSave=TTY;
-  TTYLocSave.x = TTYLoc.x;
-  TTYLocSave.y = TTYLoc.y;
-  CharWideSave=CharWide;
-  CharHighSave=CharHigh;
-  CharWide=8;
-  CharHigh=16;
-  CurMem=M0;
-  CurModeSave=CurMode;
-  ModeBoldSave=ModeBold;
-  RotateSave=Rotate;
-  ReverseSave=Reverse;
-  TTY=true;
-  prefs_running=true;
-  touch_prefs_updated=false;
-  io_prefs_updated=false;
-  prefs_need_updating=false;
-  prefs_clear();
-  while (prefs_running) {
-      prefs_serial();
-  }
-
-  if (prefs_need_updating)
-      {
-	  prefs_update();
-      }
-  
-  TTY=TTYSave;
-  TTYLoc.x=TTYLocSave.x;
-  TTYLoc.y=TTYLocSave.y;
-  prefs_done();
-}
-
-/**
- * prefs_serial()
- * Preferences menu to show for serial devices.
- */
-void prefs_serial(void)
-{
-  prefs_display("i)nterface s)ave e)xit: ");
-
-  ch=prefs_get_key_matching("iseISE");
-
-  switch(ch)
-    {
-    case 'i':
-      prefs_select("interface");
-      prefs_interface();
-      break;
-      /*    case 'b':
-      prefs_select("baud");
-      prefs_baud();
-      break;
-    case 't':
-      prefs_select("touch");
-      prefs_touch();
-      break;
-    case 'o':
-      prefs_select("other");
-      prefs_other();
-      break; */
-    case 's':
-      prefs_select("save");
-      prefs_save();
-      break;
-    case 'e':
-      prefs_running=false;
-      break;
-    }
-  
-}
-
-/**
- * prefs_get_val()
- * get string with ip address numbers, terminated by return.
- */
-void prefs_get_val(void)
-{
-  unsigned char strp=0;
-  
-  ch=0;
-
-  while (ch != 0x0d)
-    {
-      ch=prefs_get_key_matching1("0123456789");
-      if (ch==0x08) /* was translated from 0x14 to 0x08 */
-  	{
-	  if (strp>0)
-	    {
-	      --strp;
-	      temp_val[strp]=0;
-	      ShowPLATO(&ch,1);
-	    }
-  	}
-      else if (ch==0x0d)
-	{
-	  // Don't append or show the CR
+    int new;
+    int x,y;
+    int last;
+    widget *w;
+    widget_add(&hard);
+    widget_add(&soft);
+    widget_add(&none);
+    widget_add(&S300);
+    widget_add(&S600);
+    widget_add(&S1200);
+    widget_add(&S2400);
+    widget_add(&S4800);
+    widget_add(&S9600);
+    widget_add(&S19200);
+    widget_add(&S115200);
+    widget_add(&echo);
+    drawall();
+    while(1) {
+	di();
+	new = mouse_b;
+	x = mouse_x / 2 - 2;
+	y = mouse_y * 3 / 8;
+	ei();
+	if (new != last && (w = pcollide(x,y))) {
+	    mouse_hide();
+	    if (new)
+		w->doev(w, 1);
+	    else
+		w->doev(w, 2);
+	    mouse_show();
 	}
-      else
-  	{
-  	  temp_val[strp]=ch;
-  	  ShowPLATO(&ch,1);
-	  ++strp;
-  	}
+	last = new;
     }
 }
 
-/**
- * prefs_other()
- * Other prefs options
- */
-void prefs_other(void)
-{
-  prefs_clear();
-  prefs_display("OTHER: x)onoff e)xit: ");
-  ch=prefs_get_key_matching("fxeFXE");
-
-  switch(ch)
-    {
-    case 'x':
-      prefs_xonoff();
-      break;
-    case 'e':
-      prefs_serial();
-      break;
-    }
-}
-
-/* /\** */
-/*  * prefs_fill() */
-/*  * Toggle fill on/off */
-/*  *\/ */
-/* void prefs_fill(void) */
-/* { */
-/*   prefs_clear(); */
-/*   prefs_display("FILL: Y)ES N)O: "); */
-/*   ch=prefs_get_key_matching("ynYN"); */
-/*   switch(ch) */
-/*     { */
-/*     case 'y': */
-/*       prefs_select(" YES"); */
-/*       config.fill=true; */
-/*       break; */
-/*     case 'n': */
-/*       prefs_select(" NO"); */
-/*       config.fill=false; */
-/*       break; */
-/*     } */
-/*   prefs_clear(); */
-/*   prefs_other(); */
-/* } */
-
-/**
- * prefs_xonoff()
- * Set xon/off buffers
- */
-void prefs_xonoff(void)
-{
-  prefs_clear();
-  prefs_display("enter new xon threshold: ");
-  prefs_get_val();
-  if (strcmp(temp_val,"")!=0)
-    config.xon_threshold=atoi(temp_val);
-  prefs_select(" ok");
-  prefs_clear();
-  prefs_display("enter new xoff threshold: ");
-  prefs_get_val();
-  if (strcmp(temp_val,"")!=0)
-    config.xoff_threshold=atoi(temp_val);
-  prefs_select(" ok");
-  prefs_clear();
-}
-
-
-/**
- * prefs_save(void)
- * Save preferences
- */
-void prefs_save(void)
-{
-  prefs_display("saving preferences...");
-  config_save();
-  prefs_select("ok");
-  prefs_clear();
-}
-
-/**
- * prefs_baud(void)
- * Preferences for selecting serial baud rate
- */
-void prefs_baud(void)
-{
-  prefs_display("3)00 1)200 2)400 9)600 q)19200 w)38400 b)ack: ");
-  
-  ch=prefs_get_key_matching("3129qwbQWB");
-
-  switch(ch)
-    {
-    case '3':
-      prefs_select("300");
-      config.baud=SER_BAUD_300;
-      io_prefs_updated=true;
-      prefs_need_updating=true;
-      break;
-    case '1':
-      prefs_select("1200");
-      config.baud=SER_BAUD_1200;
-      io_prefs_updated=true;
-      prefs_need_updating=true;
-      break;
-    case '2':
-      prefs_select("2400");
-      config.baud=SER_BAUD_2400;
-      io_prefs_updated=true;
-      prefs_need_updating=true;
-      break;
-    case '9':
-      prefs_select("9600");
-      config.baud=SER_BAUD_9600;
-      io_prefs_updated=true;
-      prefs_need_updating=true;
-      break;
-    case 'q':
-      prefs_select("19200");
-      config.baud=SER_BAUD_19200;
-      io_prefs_updated=true;
-      prefs_need_updating=true;
-      break;
-    case 'w':
-      prefs_select("38400");
-      config.baud=SER_BAUD_38400;
-      io_prefs_updated=true;
-      prefs_need_updating=true;
-      break;
-    case 'b':
-      prefs_select("back");
-      break;
-    }
-}
-
-/**
- * prefs_interface(void)
- * Preferences menu to select interface.
- */
-void prefs_interface(void)
-{
-  prefs_display("1)dw/becker 2)dw/bitbanger 3) rs232 pak b)ack: ");
-
-  ch=prefs_get_key_matching("123b");
-
-  switch(ch)
-    {
-    /* case 'e': */
-    /*   prefs_select("ethernet"); */
-    /*   config.io_mode=IO_MODE_ETHERNET; */
-    /*   io_prefs_updated=true; */
-    /*   prefs_need_updating=true; */
-    /*   break; */
-    case '1':
-      prefs_select("becker");
-      config.io_mode = IO_MODE_DWBECKER;
-      io_prefs_updated = true;
-      prefs_need_updating = true;
-      config.valid = true;
-      break;
-    case '2':
-      prefs_select("bitbanger");
-      config.io_mode = IO_MODE_DWBITBANGER;
-      io_prefs_updated = true;
-      prefs_need_updating = true;
-      config.valid = true;
-      break;
-    case '3':
-      prefs_select("rs232");
-      config.io_mode = IO_MODE_RS232;
-      io_prefs_updated = true;
-      prefs_need_updating = true;
-      config.valid = true;
-      break;
-    case 'b':
-      prefs_select("back");
-      break;
-    }
-}
-
-/* /\** */
-/*  * prefs_dhcp(void) */
-/*  * Preferences menu to enable/disable dhcp */
-/*  *\/ */
-/* void prefs_dhcp(void) */
-/* { */
-/*   prefs_display("dhcp - y)es n)o b)ack: "); */
-
-/*   ch=prefs_get_key_matching("ynbYNB"); */
-
-/*   switch(ch) */
-/*     { */
-/*     case 'y': */
-/*       prefs_select("yes"); */
-/*       config.use_dhcp=true; */
-/*       io_prefs_updated=true; */
-/*       prefs_need_updating=true; */
-/*       break; */
-/*     case 'n': */
-/*       prefs_select("no"); */
-/*       config.use_dhcp=false; */
-/*       io_prefs_updated=true; */
-/*       prefs_need_updating=true; */
-/*       break; */
-/*     case 'b': */
-/*       prefs_select("back"); */
-/*       break; */
-/*     } */
-/* } */
-
-/* /\** */
-/*  * prefs_get_address() */
-/*  * get string with ip address numbers, terminated by return. */
-/*  *\/ */
-/* void prefs_get_address(void) */
-/* { */
-/*   unsigned char strp=0; */
-  
-/*   ch=0; */
-
-/*   while (ch != 0x0d) */
-/*     { */
-/*       ch=prefs_get_key_matching1("0123456789."); */
-/*       if (ch==0x08) /\* was translated from 0x14 to 0x08 *\/ */
-/*   	{ */
-/* 	  if (strp>0) */
-/* 	    { */
-/* 	      --strp; */
-/* 	      temp_ip_address[strp]=0; */
-/* 	      ShowPLATO(&ch,1); */
-/* 	    } */
-/*   	} */
-/*       else if (ch==0x0d) */
-/* 	{ */
-/* 	  // Don't append or show the CR */
-/* 	} */
-/*       else */
-/*   	{ */
-/*   	  temp_ip_address[strp]=ch; */
-/*   	  ShowPLATO(&ch,1); */
-/* 	  ++strp;	   */
-/*   	} */
-/*     } */
-/* } */
-
-/* /\** */
-/*  * prefs_ip(void) */
-/*  * Preferences menu for IP address */
-/*  *\/ */
-/* void prefs_ip(void) */
-/* { */
-/*   prefs_display("ip address (x.x.x.x) or return for none: "); */
-/*   prefs_get_address(); */
-/*   config.ip_address = parse_dotted_quad(temp_ip_address); */
-/*   prefs_select(" ok"); */
-/*   io_prefs_updated=true; */
-/*   prefs_need_updating=true; */
-/* } */
-
-/* /\** */
-/*  * prefs_dns(void) */
-/*  * Preferences menu for dns */
-/*  *\/ */
-/* void prefs_dns(void) */
-/* { */
-/*   prefs_display("dns (x.x.x.x) or return for none: "); */
-/*   prefs_get_address(); */
-/*   config.dns = parse_dotted_quad(temp_ip_address); */
-/*   prefs_select(" ok"); */
-/*   io_prefs_updated=true; */
-/*   prefs_need_updating=true; */
-/* } */
-
-/* /\** */
-/*  * prefs_netmask(void) */
-/*  * Preferences menu for netmask */
-/*  *\/ */
-/* void prefs_netmask(void) */
-/* { */
-/*   prefs_display("netmask (x.x.x.x) or return for none: "); */
-/*   prefs_get_address(); */
-/*   config.netmask = parse_dotted_quad(temp_ip_address); */
-/*   prefs_select(" ok"); */
-/*   io_prefs_updated=true; */
-/*   prefs_need_updating=true; */
-/* } */
-
-/* /\** */
-/*  * prefs_ip(void) */
-/*  * Preferences menu for IP address */
-/*  *\/ */
-/* void prefs_gateway(void) */
-/* { */
-/*   prefs_display("gateway (x.x.x.x) or return for none: "); */
-/*   prefs_get_address(); */
-/*   config.gateway = parse_dotted_quad(temp_ip_address); */
-/*   prefs_select(" ok"); */
-/*   io_prefs_updated=true; */
-/*   prefs_need_updating=true; */
-/* } */
-
-/* /\** */
-/*  * prefs_ethernet(void) */
-/*  * Preferences menu to show for ethernet devices. */
-/*  *\/ */
-/* void prefs_ethernet(void) */
-/* { */
-/*   prefs_display("i)nterface d)hcp p)ip n)etmask g)ateway w)dns s)save e)xit: "); */
-
-/*   ch=prefs_get_key_matching("idpngwseIDPNGWSE"); */
-
-/*   switch(ch) */
-/*     { */
-/*     case 'i': */
-/*       prefs_select("interface"); */
-/*       prefs_interface(); */
-/*       break; */
-/*     case 'd': */
-/*       prefs_select("dhcp"); */
-/*       prefs_dhcp(); */
-/*       break; */
-/*     case 'p': */
-/*       prefs_select("ip"); */
-/*       prefs_ip(); */
-/*       break; */
-/*     case 'n': */
-/*       prefs_select("netmask"); */
-/*       prefs_netmask(); */
-/*       break; */
-/*     case 'g': */
-/*       prefs_select("gateway"); */
-/*       prefs_gateway(); */
-/*       break; */
-/*     case 'w': */
-/*       prefs_select("dns"); */
-/*       prefs_dns(); */
-/*       break; */
-/*     case 's': */
-/*       prefs_select("save"); */
-/*       prefs_save(); */
-/*       break; */
-/*     case 'e': */
-/*       prefs_running=false; */
-/*       break; */
-/*     } */
-/* } */
-
-/**
- * prefs_display(text)
- * Display a line of the preferences menu
- * This routine contains some ifdefs to work around the fact that the commodore targets
- * for CC65 remap ASCII passed in character strings.
- */
 void prefs_display(const char* text)
 {
-  uint8_t c;
-  TTYLoc.x=0;
-  TTYLoc.y=1;
-  
-  c=tgi_getcolor();
-  tgi_setcolor(TGI_COLOR_WHITE);
-  ShowPLATO((unsigned char*)text, strlen(text));
-  tgi_setcolor(c);
 }
 
-/**
- * Wait for a key matching input, return it.
- */
-unsigned char prefs_get_key_matching(const char* matches)
-{
-  unsigned char ch;
-  unsigned char i;
-  
-  while (true)
-    {
-      ch=tolower(cgetc());
-      for (i=0;i<strlen(matches);++i)
-	{
-	  if (ch==matches[i])
-	    return ch;
-	}
-    }
-}
-
-/**
- * TEMPORARY: Wait for a key matching input, return it.
- */
-unsigned char prefs_get_key_matching1(const char* matches)
-{
-  unsigned char ch=0;
-  unsigned char i;
-  
-  for (;;)
-    {
-      ch=cgetc();
-
-      if (ch==0x0d || ch==0x9B)
-	return 0x0d;
-      else if (ch==0x14)
-	return 0x08; /* convert PETSCII DEL to ASCII BS */
-      
-      for (i=0;i<strlen(matches);++i)
-	{
-	  if (ch==matches[i])
-	    return ch;
-	}
-    }
-}
-
-/**
- * erase prefs bar
- */
 void prefs_clear(void)
 {
-  uint8_t c;
-  c=tgi_getcolor();
-  tgi_setcolor(TGI_COLOR_BLACK);
-  /* fixme: this is screen driver dependant */
-  tgi_bar(0,185,255,192);
-  tgi_setcolor(c);
-  ShowPLATO("\n\v",2);
-}
-
-/**
- * indicate selection, display it, and wait a bit for visual confirmation.
- */
-void prefs_select(const char* text)
-{
-  unsigned char i=0;
-  ShowPLATO((unsigned char *)text,strlen(text));
-  
-  for (i=0;i<60;i++)
-    {
-      screen_wait();
-    }
-
-  prefs_clear();
-
-}
-
-/**
- * Update program state with selected preferences
- */
-void prefs_update(void)
-{
-  unsigned char retv;
-
-  if (io_prefs_updated==true)
-    {
-      // Close any serial drivers.
-      prefs_clear();
-      prefs_display("closing serial driver...");
-      ser_close();
-      prefs_clear();
-      prefs_display("unloading serial driver...");
-      ser_unload();
-      prefs_clear();
-    }
-
-  prefs_clear();
-  
-  if (touch_prefs_updated==true)
-    {
-      // Close any touch drivers
-      prefs_display("unloading touch driver...");
-      mouse_unload();
-      prefs_clear();
-    }
-
-  if (io_prefs_updated == true) {
-      prefs_display("loading serial driver...");
-      switch (config.io_mode) {
-      case IO_MODE_DWBECKER:
-	  ser_load_driver("DWBKR");
-	  break;
-      case IO_MODE_DWBITBANGER:
-	  ser_load_driver("DWBIT");
-	  break;
-      case IO_MODE_RS232:
-	  ser_load_driver("RS232");
-	  break;
-      }
-      io_init_funcptrs();
-      io_open();
-      prefs_clear();
-  }
-  /* else if (io_prefs_updated==true && config.io_mode == IO_MODE_ETHERNET) */
-  /*   { */
-  /*     // Come back here and implement ethernet specific stuff */
-  /*     prefs_display("ethernet not implemented, yet."); */
-  /*     prefs_select(""); */
-  /*     prefs_clear(); */
-  /*   } */
-
-  prefs_clear();
-  
-  if (touch_prefs_updated==true && strcpy(config.driver_mou,"NONE")!=0)
-    {
-      prefs_clear();
-      prefs_display("loading touch driver...");
-      config_init_hook();
-      retv = mouse_load_driver(&mouse_def_callbacks,config.driver_mou);
-      if (retv==MOUSE_ERR_OK)
-	{
-	  prefs_select("ok");
-	  mouse_show();
-	}
-      else
-	{
-	  prefs_select("error");
-	}
-    }
 }
 
 /**
