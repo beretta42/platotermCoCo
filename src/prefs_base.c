@@ -111,6 +111,24 @@ static unsigned char radio_set[] = {
     0b01111000,
 };
 
+static unsigned char spin_up[] = {
+    0b00000000,
+    0b00110000,
+    0b01001000,
+    0b10000100,
+    0b11111100,
+    0b00000000,
+};
+
+static unsigned char spin_down[] = {
+    0b00000000,
+    0b11111100,
+    0b10000100,
+    0b01001000,
+    0b00110000,
+    0b00000000,
+};
+
 typedef struct widget_s widget;
 
 struct widget_s {
@@ -133,6 +151,20 @@ static tgi_puts(int x, int y, char *text) {
 	tgi_char_blit(x, y, &font[fontptr[*text++ - 32]]);
 	x += 4;
     }
+}
+
+static void dospin(widget *w, int e) {
+    int x,y,x1,y1;
+    x = w->x;
+    y = w->y;
+    x1 = w->x + w->w;
+    y1 = w->y + w->h;
+    tgi_cset(0);
+    tgi_bar(x,y,x1,y1);
+    tgi_cset(1);
+    tgi_hline(x,y,w->w);
+    tgi_hline(x,y1,w->w);
+    tgi_puts(x+2, y+2, w->t);
 }
 
 static void docheck(widget *w, int e) {
@@ -218,33 +250,16 @@ static void doflow(widget *w, int e) {
 }
 
 
-static void dospeed(widget *w, int e);
-static widget S300 = {50, 130, 30, 10, 1, "300", doradio, dospeed};
-static widget S600 = {50, 140, 30, 10, 1, "600", doradio, dospeed};
-static widget S1200 = {50, 150, 30, 10, 1, "1200", doradio, dospeed};
-static widget S2400 = {50, 160, 30, 10, 1, "2400", doradio, dospeed};
-static widget S4800 = {100, 130, 30, 10, 1, "4800", doradio, dospeed};
-static widget S9600 = {100, 140, 30, 10, 1, "9600", doradio, dospeed};
-static widget S19200 = {100, 150, 30, 10, 1, "19200", doradio, dospeed};
-static widget S115200 = {100, 160, 30, 10, 1, "115200", doradio, dospeed};
-static void dospeed(widget *w, int e) {
-    S300.d = S600.d = S1200.d = S2400.d = S4800.d =
-	S9600.d = S19200.d = S115200.d = 0;
-    w->d = 1;
-    S300.doev(&S300, 0);
-    S600.doev(&S600, 0);
-    S1200.doev(&S1200, 0);
-    S2400.doev(&S2400, 0);
-    S4800.doev(&S4800, 0);
-    S9600.doev(&S9600, 0);
-    S19200.doev(&S19200, 0);
-    S115200.doev(&S115200, 0);
-}
-
 static void doecho(widget *w, int e);
-static widget echo = {50,170,30,10,1, "Local Echo", docheck, doecho};
+static widget echo = {50,130,30,10,1, "Local Echo", docheck, doecho};
 static void doecho(widget *w, int e) {
 }
+
+static void dospeed(widget *w, int e);
+static widget speed1 = {50,180,30,10,1,"Baud", dospin, dospeed};
+static void dospeed(widget *w, int e) {
+}
+
 
 /**
  * Run the preferences menu
@@ -258,15 +273,8 @@ void prefs_run(void)
     widget_add(&hard);
     widget_add(&soft);
     widget_add(&none);
-    widget_add(&S300);
-    widget_add(&S600);
-    widget_add(&S1200);
-    widget_add(&S2400);
-    widget_add(&S4800);
-    widget_add(&S9600);
-    widget_add(&S19200);
-    widget_add(&S115200);
     widget_add(&echo);
+    widget_add(&speed1);
     drawall();
     while(1) {
 	di();
