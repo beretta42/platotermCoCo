@@ -12,31 +12,41 @@
 
 #define IO_MODE_DWBECKER      0
 #define IO_MODE_DWBITBANGER   1
-#define IO_MODE_RS232         2
-#define IO_MODE_SERIAL        16
-#define IO_MODE_ETHERNET      32
+#define IO_MODE_DWRS232       2
+#define IO_MODE_RS232         3
+
+#define IO_BAUD_300           0
+#define IO_BAUD_600           1
+#define IO_BAUD_1200          2
+#define IO_BAUD_2400          3
+#define IO_BAUD_4800          4
+#define IO_BAUD_9600          5
+#define IO_BAUD_19200         6
+#define IO_BAUD_115200        7
+
+#define IO_FLOW_NONE          0
+#define IO_FLOW_HARD          1
+#define IO_FLOW_SOFT          2
 
 #define XON_THRESHOLD 46
 #define XOFF_THRESHOLD 127
 
 typedef struct configInfo
 {
-  unsigned char valid;
-  unsigned char io_mode;
-  unsigned char baud;
-  unsigned char use_dhcp;
-  unsigned long ip_address;
-  unsigned long netmask;
-  unsigned long gateway;
-  unsigned long dns;
-  unsigned char driver_ser[16];
-  unsigned char driver_mou[16];
-  unsigned char color_foreground;
-  unsigned char color_background;
-  unsigned char color_border;
-  unsigned short xon_threshold;
-  unsigned short xoff_threshold;
-  unsigned char fill;
+    unsigned char valid;
+    unsigned char io_mode;
+    unsigned char baud;
+    unsigned char mpi;
+    unsigned char flow;
+    unsigned char ttyecho;
+    unsigned char driver_ser[16];
+    unsigned char driver_mou[16];
+    unsigned char color_foreground;
+    unsigned char color_background;
+    unsigned char color_border;
+    unsigned short xon_threshold;
+    unsigned short xoff_threshold;
+    unsigned char fill;
 } ConfigInfo;
 
 extern ConfigInfo config;

@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <config.h>
 #include <serial.h>
 #include <stdint.h>
 #include <protocol.h>
-#include <config.h>
 #include <mouse.h>
 #include <tgi.h>
 
@@ -168,6 +168,8 @@ void config_init_hook(void)
 void config_set_defaults(void)
 {
     config.io_mode = IO_MODE_DWBECKER;
+    config.baud = IO_BAUD_19200;
+    config.mpi = 2;
 }
 
 void screen_update_colors(void)

@@ -13,6 +13,7 @@
 #include "../protocol.h"
 #include "../screen.h"
 #include "../plato_key.h"
+#include "../config.h"
 
 #define keystrobe (*(volatile unsigned char *)0xff02)
 #define keyread   (*(volatile unsigned char *)0xff00)
@@ -182,7 +183,7 @@ void keyboard_main(void){
 	    else
 		k = atab[k-1];
 	    ser_put(k);
-	    screen_tty_char(k);
+	    if (config.ttyecho) screen_tty_char(k);
 	} 
 	else {
 	    if (meta == 0)

@@ -114,7 +114,7 @@ void prefs_ethernet(void);
  * prefs_display(text)
  * Display a line of the preferences menu
  */
-void prefs_display(const char* text);
+void prefs_display(char* text);
 
 /**
  * Wait for a key matching input, return it.
@@ -130,11 +130,6 @@ unsigned char prefs_get_key_matching1(const char* matches);
  * indicate selection, display it, and wait a bit for visual confirmation.
  */
 void prefs_select(const char* text);
-
-/**
- * erase prefs bar
- */
-void prefs_clear(void);
 
 /**
  * Update program state with selected preferences

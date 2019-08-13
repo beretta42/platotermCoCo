@@ -8,13 +8,13 @@
  */
 
 #include <stdbool.h>
+#include "config.h"
 #include <serial.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <peekpoke.h>
 #include "io.h"
 #include "protocol.h"
-#include "config.h"
 #include "prefs.h"
 
 #define NULL 0
@@ -32,13 +32,6 @@ static uint8_t recv_buffer[384];
 static uint16_t recv_buffer_size=0;
 extern ConfigInfo config;
 
-static struct ser_params params = {
-  SER_BAUD_38400,
-  SER_BITS_8,
-  SER_STOP_1,
-  SER_PAR_NONE,
-  SER_HS_HW
-};
 
 /**
  * io_init() - Set-up the I/O
@@ -59,6 +52,9 @@ void io_init(void)
       prefs_display("rs232 driver loaded");
       io_res = ser_load_driver("RS232");
       break;
+  case IO_MODE_DWRS232:
+      prefs_display("dw rs232 driver loaded");
+      io_res = ser_load_driver("DWRS232");
   default:
       io_res = 1;
       break;
@@ -87,26 +83,15 @@ void io_init(void)
  */
 void io_open(void)
 {
-    config.io_mode = IO_MODE_SERIAL;
-  if (config.io_mode == IO_MODE_SERIAL)
-    {
-      params.baudrate = config.baud;
-
-      io_res=ser_open(&params);
+    io_res=ser_open(&config);
       
-      if (io_res!=SER_ERR_OK)
-	{
-	  io_load_successful=false;
-	  prefs_display("error: could not open serial port.");
-	}
-
-      // Needed to enable up2400. Ignored with swlink.
-      ser_ioctl(1, NULL);
+    if (io_res!=SER_ERR_OK) {
+	io_load_successful=false;
+	prefs_display("error: could not open serial port.");
     }
-  else if (config.io_mode == IO_MODE_ETHERNET)
-    {
-      // Not implemented, yet.
-    }
+    
+    // Needed to enable up2400. Ignored with swlink.
+    ser_ioctl(1, NULL);
 }
 
 /**

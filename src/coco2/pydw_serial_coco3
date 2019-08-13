@@ -1,1 +1,1 @@
-pyDriveWire -s 115200 -p /dev/ttyUSB0 ~/C/platotermCoCo/src/coco2/plato.dsk
+pyDriveWire -s 115200 -p /dev/ttyUSB1 ~/C/platotermCoCo/src/coco2/plato.dsk
