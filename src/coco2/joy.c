@@ -1,5 +1,7 @@
 /*  Joystick Mouse/Touch Driver
     fixme: this code has a fixed idea of screen resolution, 256x192
+
+    fixme: this needs to do a moving average to smooth jitters
  */
 
 #include <stdint.h>
