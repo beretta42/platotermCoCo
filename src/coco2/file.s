@@ -17,7 +17,7 @@ _open_ll:
 	ldy	#open_err	; usurp BASIC error vector
 	sty	$192
 	tfr	x,d		; glue
-	;; this DECB vectors should be grokked from the BASIC
+	;; fixme: this DECB vectors should be grokked from the BASIC
 	;; RAM vectors in DP. Don't assume decb1.1 locations!
 	jsr	$c48d		; call 1.1 DECB's open
 open_ok:
