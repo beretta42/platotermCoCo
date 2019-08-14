@@ -509,7 +509,12 @@ void prefs_run(void)
 
 void prefs_display(char* text)
 {
+    int x = 60;
     tgi_puts(1, 192-8, text);
+    while (x--)
+	screen_wait();
+    tgi_cset(0);
+    tgi_bar(0, 192-8, 255, 191);
 }
 
 

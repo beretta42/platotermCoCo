@@ -55,6 +55,7 @@ void io_init(void)
   case IO_MODE_DWRS232:
       prefs_display("dw rs232 driver loaded");
       io_res = ser_load_driver("DWRS232");
+      break;
   default:
       io_res = 1;
       break;

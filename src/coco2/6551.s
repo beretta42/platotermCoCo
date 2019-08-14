@@ -65,22 +65,38 @@ base	.dw	DEFBASE		; our uart port
 
 	.area	.text
 
+cntl_lu	.db	$16		; 300
+	.db	$17		; 600
+	.db	$18		; 1200
+	.db	$1a		; 2400
+	.db	$1c		; 4800
+	.db	$1e		; 9600
+	.db	$1f		; 19200
+	.db	$00		; 115200
+
+mpi_lu	.db	$0
+	.db	$11
+	.db	$22
+	.db	$33
+
 ;;; initialize the system
 _ser_init:
 	rts
 
 ;;; Open Vport
-;;; unsigned char ser_open (const struct ser_params* params)
-;;; we don't handle params (yet)
+;;; unsigned char ser_open (ConfigInfo *params)
 _ser_open:
-	pshs	cc
+	pshs	cc,x
 	orcc	#$50		; off interrupts
 	ldx	#.bss_base	; clear out BSS
 b@	clr	,x+		;
 	cmpx	#.bss_base+.bss_len ;
-	bne	b@		;
-	lda	#$22		; set mpi to slot 3
-	sta	MPI		;
+	bne	b@
+	ldx	1,s	        ; get mpi slot from config
+	lda	3,x		;
+	ldx	#mpi_lu		; lookup in table
+	lda	a,x		;
+	sta	MPI		; set it
 	ldx	FVECT		; save basic's firq vector
 	stx	vect		;
 	ldx	#fint		; set our firq handler
@@ -91,13 +107,19 @@ b@	clr	,x+		;
 	sta	PIAC		;
 	ldx	base		; reset 6551
 	sta	STAT,x		;
-	lda	#$1f		; set UART to 19200 8N1
-	sta	CNTL,x		;
+	ldx	1,s		; get baud from config
+	lda	2,x		;
+	ldx	#cntl_lu	; convert to uart
+	lda	a,x		;
+	ldx	base		;
+	sta	CNTL,x		; set control reg
 	bsr	xmit_on		; set CMD status
+	ldx	base
 a@	lda	DATA,x		; keep reading data, and status
 	lda	STAT,x		; until spurious interrupts disappear
 	bmi	a@		;
-	puls	cc,pc		; restore ints, return
+	clrb
+	puls	cc,x,pc		; restore ints, return
 
 
 ;;; Close Vport
