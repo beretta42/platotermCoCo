@@ -224,6 +224,7 @@ fint:	pshs	x,d		; save regs we actually use (the fast part)
 	beq	b@		; no continue
 	ldb	#$55		; yes: fixme: what to do on rx errors?
 	stb	$6000		; fixme: debug indicator
+	lda	DATA,x		; read the data to clear the errors
 b@	bita	#$8		; is recv ?
 	bne	rec@
 a@	bita	#$10		; is xmit ?
