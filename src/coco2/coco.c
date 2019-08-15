@@ -53,7 +53,7 @@ static uint8_t mpi;
 #define MPI (*(volatile uint8_t *)0xff7f)
 static void save_mpi(void) {
     mpi = MPI;
-    MPI = 0x11;
+    MPI = 0x33;
 }
 
 static void restore_mpi(void) {
