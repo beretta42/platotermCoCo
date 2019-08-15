@@ -218,20 +218,16 @@ a@	ldb	rout		; get next byte from buffer
 ;;; This is called from vsync (60 hz).
 ;;;   This routine checks to see if flow control
 ;;;   needs toggling
-poll:   inc	$6001		; fixme: debug spinner
-	lda	rlen		; both paths need the length
+poll:   lda	rlen		; both paths need the length
 	ldb	rflow		; rx flow control on?
 	beq	isoff@		; rec is on see if we should turn off
 	cmpa	#THLOW		; more than 40 charactors in buff?
 	bhi	ret@		; yup return
 	dec	rflow		; nope - turn on flow
-	clr	$6000		; fixme: debug indicator
 	jmp	xmit_on		; tail call
 isoff@	cmpa	#THHI		; more than 150 charactor in buff?
 	blo	ret@		; nope return
 	inc	rflow		; mark that we're in a tx flow control state
-	ldb	#$ff		; fixme: debug indicator here
-	stb	$6000		;
 	jmp	xmit_off	; tail call - turn off rx flow control
 ret@	rts
 
@@ -240,7 +236,6 @@ ret@	rts
 ;;; This is a firq handler
 ;;;   simple as it gets to keep it small/fast
 fint:	pshs	x,d		; save regs we actually use (the fast part)
-	inc	$6003		; fixme: debug indicator
 	lda	PIAC		; get PIA status
 	bpl	ret@		; skip this sillyness if not a CART interrupt
 	lda	PIA		; clear pia interrupt
