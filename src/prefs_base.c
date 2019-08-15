@@ -5,6 +5,9 @@
  * Author: Thomas Cherryhomes <thom.cherryhomes at gmail dot com>
  *
  * prefs.c - Preferences menu functions
+ *
+ * brett notes:
+ *   fixme: use a dirty redraw
  */
 
 #include <stdlib.h>
@@ -26,6 +29,7 @@
 #include "terminal.h"
 
 static void prefs_apply(void);
+static void prefs_apply_r(void);
 
 extern unsigned char font[];
 extern unsigned int fontptr[];
@@ -163,7 +167,8 @@ static tgi_puts(int x, int y, char *text) {
     }
 }
 
-
+/* draw a box around a list of widgets */
+/* fixme: refactor bounding box out of this */
 static void bound_list(widget *p) {
     widget *w = p;
     int x1 = w->x;
@@ -208,16 +213,9 @@ static void docombo(widget *w, int e) {
     case 2:
 	tgi_char_blit(w->x+1, w->y+1, combo_up);
 	tgi_puts(w->x+9, w->y+2, w->t);
-	if (w->d) {
-	    w->d = 0;
-	    focus = head;
-	}
-	else {
-	    w->d = 1;
-	    draw_children(w);
-	    bound_list(w->child);
-	    focus = w->child;
-	}
+	draw_children(w);
+	bound_list(w->child);
+	focus = w->child;
 	break;
     }
 }
@@ -282,6 +280,10 @@ static void docombo_item(widget *w, int e) {
 	w->parent->t = w->t;
 	w->parent->d = w->d;
 	draw_all();
+	break;
+    case 3:
+	w->parent->t = w->t;
+	w->parent->d = w->d;
 	break;
     }
 }
@@ -408,6 +410,7 @@ static void dook(widget *w, int e) {
 static prefs_init(void) {
     if (initf) return;
     initf = 1;
+    /* sigh */
     widget_add(NULL, &ifacel);
     widget_add(NULL, &iface);
     widget_add(&iface, &iface1);
@@ -450,6 +453,75 @@ static void prefs_apply(void) {
     config.ttyecho = echo.d;
 }
 
+static void prefs_apply_r(void) {
+    switch(config.io_mode) {
+    case 0:
+	iface1.doev(&iface1, 3);
+	break;
+    case 1:
+	iface2.doev(&iface2, 3);
+	break;
+    case 2:
+	iface2.doev(&iface3, 3);
+	break;
+    case 3:
+	iface2.doev(&iface4, 3);
+	break;
+    }
+    echo.d = config.ttyecho;
+    switch(config.baud) {
+    case 0:
+	S300.doev(&S300, 3);
+	break;
+    case 1:
+	S600.doev(&S600, 3);
+	break;
+    case 2:
+	S1200.doev(&S1200, 3);
+	break;
+    case 3:
+	S2400.doev(&S2400, 3);
+	break;
+    case 4:
+	S4800.doev(&S4800, 3);
+	break;
+    case 5:
+	S9600.doev(&S9600, 3);
+	break;
+    case 6:
+	S19200.doev(&S19200, 3);
+	break;
+    case 7:
+	S115200.doev(&S115200, 2);
+	break;
+    }
+    switch (config.mpi) {
+    case 0:
+	mpi1.doev(&mpi1, 3);
+	break;
+    case 1:
+	mpi2.doev(&mpi2, 3);
+	break;
+    case 2:
+	mpi3.doev(&mpi3, 3);
+	break;
+    case 3:
+	mpi4.doev(&mpi4, 3);
+	break;
+    }
+    switch (config.flow) {
+    case 0:
+	none.doev(&none, 3);
+	break;
+    case 1:
+	hard.doev(&hard, 3);
+	break;
+    case 2:
+	soft.doev(&soft, 3);
+	break;
+    }
+}
+
 
 /**
  * Run the preferences menu
@@ -461,12 +533,15 @@ void prefs_run(void)
     int last;
     widget *w;
     widget *clicked;
+
     prefs_init();
+    prefs_apply_r();
     draw_all();
+    
     last = mouse_b;
     exitf = 0;
     focus = head;
-    while(1) {
+    while (exitf == 0) {
 	di();
 	new = mouse_b;
 	x = mouse_x / 2 - 2;
@@ -488,23 +563,27 @@ void prefs_run(void)
 		    }
 		}
 	    }
-	    else {
+	    else {  // no widget collides so:
+		// if something was down clicked, unclick it.
 		if (clicked) {
 		    clicked->doev(clicked,0);
 		    clicked = NULL;
+		}
+		// if we're focused on a container, then exit it.
+		if (focus != head) {
+		    focus = head;
+		    draw_all();
 		}
 	    }
 	    mouse_show();
 	}
 	last = new;
-	if (exitf) {
-	    mouse_hide();
-	    tgi_clear();
-	    mouse_show();
-	    prefs_apply();
-	    return;
-	}
     }
+    mouse_hide();
+    tgi_clear();
+    mouse_show();
+    prefs_apply();
+
 }
 
 void prefs_display(char* text)
