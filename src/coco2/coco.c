@@ -188,9 +188,8 @@ void config_init_hook(void)
 
 void config_set_defaults(void)
 {
-    config.io_mode = IO_MODE_DWBECKER;
-    config.baud = IO_BAUD_19200;
-    config.mpi = 2;
+    config.baud = IO_BAUD_1200;
+    config.ttyecho = 1;
 }
 
 void screen_update_colors(void)
