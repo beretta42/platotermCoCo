@@ -49,9 +49,22 @@ int close_ll(void);
 #define DEVNUM *((uint8_t *)0x6f)
 #define NAMBUF (uint8_t *)0x94c
 
+static uint8_t mpi;
+#define MPI (*(volatile uint8_t *)0xff7f)
+static void save_mpi(void) {
+    mpi = MPI;
+    MPI = 0x11;
+}
+
+static void restore_mpi(void) {
+    MPI = mpi;
+}
+
 FILE *fopen(const char *pathname, const char *mode)
 {
     char m;
+    FILE *ret;
+    save_mpi();
     memset(NAMBUF, ' ', 11);
     /* fixme: do something more clever about filenames/extensions here */
     memcpy(NAMBUF, pathname, strlen(pathname));
@@ -59,7 +72,9 @@ FILE *fopen(const char *pathname, const char *mode)
 	m = 'I';
     else
 	m = 'O';
-    return (FILE *)open_ll( (m<<8) | 1 );
+    ret = open_ll( (m<<8) | 1 );
+    restore_mpi();
+    return ret;
 }
 
 
@@ -69,6 +84,7 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     uint8_t *p = (uint8_t *)ptr;
     size_t num = 0;
     size_t s;
+    save_mpi();
     DEVNUM = 1;
     while(nmemb--){
 	s = size;
@@ -81,6 +97,7 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 	num++;
     }
  out:
+    restore_mpi();
     return num;
 }
 
@@ -91,6 +108,7 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb,
     uint8_t *p = (uint8_t *)ptr;
     size_t num = 0;
     size_t s;
+    save_mpi();
     DEVNUM = 1;
     while(nmemb--){
 	s = size;
@@ -102,13 +120,16 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb,
 	num++;
     }
  out:
+    restore_mpi();
     return num;
 }
 
 int fclose(FILE *stream)
 {
     DEVNUM = 1;
+    save_mpi();
     return close_ll();
+    restore_mpi();
 }
 
 
