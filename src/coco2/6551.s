@@ -28,6 +28,9 @@ PIA     equ	$ff22
 PIAC	equ	$ff23		; bit 7 is flag, bit 0 is enable
 MPI	equ	$ff7f		; mpi bank register
 FVECT	equ	$110		; firq vector
+THLOW	equ	40		; low threadhold
+THHI	equ	200		; high threadhold
+
 
 	.area	.header
 
@@ -54,6 +57,7 @@ rflow:	rmb	1		; receive handshake flag
 	;; tell the xmiter thread to forget the user buffer and
 	;; insert a XOFF/XON into the outgoing data stream.
 flowb:	rmb	1		; flag / which char to insert into xmit buffer
+flow:	rmb	1		; -1 no flow, 0 cts/rts, 1 xon/off
 
 tin:	rmb	1		; input buffer index
 tout:	rmb	1		; output buffer index
@@ -92,8 +96,11 @@ _ser_open:
 b@	clr	,x+		;
 	cmpx	#.bss_base+.bss_len ;
 	bne	b@
-	ldx	1,s	        ; get mpi slot from config
-	lda	3,x		;
+	ldx	1,s		; get flow control type fron config
+	lda	4,x		;
+	deca			; -1, 0, 1
+	sta	flow		; save to file scope var
+	lda	3,x		; get mpi slot from config
 	ldx	#mpi_lu		; lookup in table
 	lda	a,x		;
 	sta	MPI		; set it
@@ -113,7 +120,7 @@ b@	clr	,x+		;
 	lda	a,x		;
 	ldx	base		;
 	sta	CNTL,x		; set control reg
-	bsr	xmit_on		; set CMD status
+	bsr	tx_on		; set CMD status
 	ldx	base
 a@	lda	DATA,x		; keep reading data, and status
 	lda	STAT,x		; until spurious interrupts disappear
@@ -139,21 +146,38 @@ _ser_close:
 	clr	CMD,x		;
 	puls	cc,pc		; return
 
-	;; This turns tx on, and also rx
-xmit_on:
-	tst	rflow		; 6551 can't do xmit if RTS is not asserted
-	bne	out@		; dont try, or we'll ruin rx flow control
-	ldx	base
+tx_on:	ldx	base
 	lda	#5
 	sta	CMD,x
+	rts
+
+	;; This turns tx on, and also rx
+xmit_on:
+	lda	flow		; which flow method?
+	bmi	out@		; no flow
+	beq	hard@		; hardware flow
+	ldb	#XON		; soft then force fint thread to send XON
+	stb	flowb		;
+	bsr	tx_on		; turn on xmit interrupts
+	rts
+hard@	tst	rflow		; 6551 can't do xmit if RTS is not asserted
+	bne	out@		; dont try, or we'll ruin rx flow control
+	bsr	tx_on		; turn on on recv (assert RTS)
 out@	rts
 
 	;; This turns off tx off, rx off
 xmit_off:
-	ldx	base
-	lda	#1		; just DTR
-	sta	CMD,x
+	lda	flow		; which flow method?
+	bmi	out@		; no flow - just return
+	beq	hard@		; hardware flow
+	lda	#XOFF		; soft then make fint thread to send xoff
+	sta	flowb		;
+	bsr	tx_on		; turn on xmit interrupts
 	rts
+hard@	ldx	base
+	lda	#1		; just DTR, no RTS, (no xmit :( )
+	sta	CMD,x
+out@	rts
 
 ;;; Send a byte to vport
 ;;;    void ser_put(char c);
@@ -165,8 +189,12 @@ _ser_put:
 	sta	,x		;
 	inc	tlen		; inc buffer lenght
 	inc	tin		; inc input position
-	bra	xmit_on		; tail call, then turn on transmitter
-
+	ldb	flow		; which flow
+	beq	hard@		; go do hardware
+none@	bra	tx_on		; tail call, then turn on transmitter
+hard@	tst	rflow		; is flow on?
+	beq	none@		; no so flip tx on
+	rts			; else leave alone
 
 ;;; Gets a byte from vport
 ;;;   char ser_get(char *c);
@@ -194,12 +222,12 @@ poll:   inc	$6001		; fixme: debug spinner
 	lda	rlen		; both paths need the length
 	ldb	rflow		; rx flow control on?
 	beq	isoff@		; rec is on see if we should turn off
-	cmpa	#40		; more than 40 charactors in buff?
+	cmpa	#THLOW		; more than 40 charactors in buff?
 	bhi	ret@		; yup return
 	dec	rflow		; nope - turn on flow
 	clr	$6000		; fixme: debug indicator
-	bra	xmit_on		; tail call
-isoff@	cmpa	#222		; more than 150 charactor in buff?
+	jmp	xmit_on		; tail call
+isoff@	cmpa	#THHI		; more than 150 charactor in buff?
 	blo	ret@		; nope return
 	inc	rflow		; mark that we're in a tx flow control state
 	ldb	#$ff		; fixme: debug indicator here
@@ -245,7 +273,9 @@ rec@    pshs	a		; save status byte
 	puls	a		; restore status byte
 	bra	a@		; go look for xmit empty and do
 	;; if transmit
-xmit@	ldb	rflow		; is rx flow on?
+xmit@	ldb	flowb		; is a soft flow byte waiting?
+	bne	dosoft@		;
+	ldb	rflow		; is rx flow on?
 	bne	ret@		; yes then do nothing
 	tst	tlen		; no check xmit buffer length
 	bne	c@		; if not empty then send
@@ -262,3 +292,7 @@ c@	ldb	tout		; get next byte from xmit buffer
 	dec	tlen		; dec buffer length
 	inc	tout		; inc xmit output position
 	bra	ret@		; return
+dosoft@ ldx	base
+	stb	DATA,x
+	clr	flowb
+	bra	ret@
