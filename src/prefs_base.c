@@ -8,6 +8,7 @@
  *
  * brett notes:
  *   fixme: use a dirty redraw
+ *   fixme: handle keyboard events and do text input box
  */
 
 #include <stdlib.h>
@@ -583,7 +584,10 @@ void prefs_run(void)
     tgi_clear();
     mouse_show();
     prefs_apply();
-
+    /* reinit */
+    io_done();
+    io_init();
+    io_open();
 }
 
 void prefs_display(char* text)
