@@ -61,7 +61,11 @@ uint8_t touch_prefs_updated;
 uint8_t io_prefs_updated;
 uint8_t exitf;
 uint8_t initf;
-
+uint8_t initstr[80] = "init string here";
+extern volatile uint8_t key;
+extern unsigned char atab[];
+extern unsigned char satab[];
+extern volatile unsigned char meta;
 
 static unsigned char check_up[] = {
     0b11111100,
@@ -158,7 +162,7 @@ struct widget_s {
 
 static widget *head = NULL;
 static widget *focus = NULL;
-
+static widget *kfocus = NULL;
 
 static tgi_puts(int x, int y, char *text) {
     int todo = strlen(text);
@@ -220,6 +224,51 @@ static void docombo(widget *w, int e) {
 	break;
     }
 }
+
+
+static void dotext(widget *w, int e);
+
+static uint8_t pos = 0;
+void text_entry(widget *w) {
+    if (key == 0x0d) {
+	kfocus = NULL;
+	dotext(w, 0);
+	return;
+    }
+    if (key == 0x08) {
+	if (pos) pos--;
+	initstr[pos] = 0;
+	dotext(w,0);
+	return;
+    }
+    initstr[pos++] = key;
+    initstr[pos] = 0;
+    dotext(w, 0);
+    return;
+}
+
+
+static void dotext(widget *w, int e) {
+    tgi_cset(0);
+    tgi_bar(w->x, w->y, w->x + w->w, w->y + w->h);
+    switch (e) {
+    case 0:
+	tgi_puts(w->x+2, w->y+2, w->t);
+	break;
+    case 1:
+	tgi_puts(w->x+3, w->y+3, w->t);
+	break;
+    case 2:
+	dotext(w, 0);
+	pos = strlen(w->t);
+	kfocus = w;
+	break;
+    case 4:
+	text_entry(w);
+	break;
+    }
+}
+
 
 static void dolabel(widget *w, int e) {
     if (e == 0) {
@@ -407,6 +456,8 @@ static void dook(widget *w, int e) {
     exitf = 1;
 }
 
+static widget initl = {50, 120, 48, 10, 0, "Init String:", dolabel};
+static widget init =  {50+48, 120, 150, 10, 0, initstr, dotext};
 
 static prefs_init(void) {
     if (initf) return;
@@ -442,6 +493,8 @@ static prefs_init(void) {
     widget_add(&mpi, &mpi4);
     widget_add(NULL, &save);
     widget_add(NULL, &ok);
+    widget_add(NULL, &init);
+    widget_add(NULL, &initl);
 }
 
 
@@ -452,9 +505,11 @@ static void prefs_apply(void) {
     config.baud = speed.d;
     config.mpi = mpi.d;
     config.ttyecho = echo.d;
+    strcpy(config.init,initstr);
 }
 
 static void prefs_apply_r(void) {
+    strcpy(initstr,config.init);
     switch(config.io_mode) {
     case 0:
 	iface1.doev(&iface1, 3);
@@ -579,6 +634,16 @@ void prefs_run(void)
 	    mouse_show();
 	}
 	last = new;
+	if (key && kfocus) {
+	    mouse_hide();
+	    if (meta & 4)
+		key = satab[key-1];
+	    else
+		key = atab[key-1];
+	    kfocus->doev(kfocus, 4);
+	    key = 0;
+	    mouse_show();
+	}
     }
     mouse_hide();
     tgi_clear();

@@ -39,8 +39,7 @@ typedef struct configInfo
     unsigned char mpi;
     unsigned char flow;
     unsigned char ttyecho;
-    unsigned char driver_ser[16];
-    unsigned char driver_mou[16];
+    unsigned char init[80];
     unsigned char color_foreground;
     unsigned char color_background;
     unsigned char color_border;

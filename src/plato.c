@@ -42,9 +42,13 @@ void greeting(void)
 /* fixme: this should be from the config structure */
 void autocon(void)
 {
-    char *p = "tcp connect irata.online 8005\r";
+    if (config.init[0] == 0)
+	return;
+    uint8_t *p = config.init;
     while (*p)
 	ser_put(*p++);
+    ser_put('\r');
+    ser_put('\n');
 }
 
 void main(void)
@@ -62,10 +66,9 @@ void main(void)
 
   if (config.valid == 0)
       prefs_run();
-  /*
   else
       autocon();
-  */
+
   // And do the terminal
   for (;;)
     {
