@@ -142,6 +142,14 @@ static unsigned char combo_down[] = {
     0b00010000,
 };
 
+static unsigned char ico_cursor[] = {
+    0b10100000,
+    0b01000000,
+    0b01000000,
+    0b01000000,
+    0b01000000,
+    0b10100000,
+};
 
 
 typedef struct widget_s widget;
@@ -164,16 +172,34 @@ static widget *head = NULL;
 static widget *focus = NULL;
 static widget *kfocus = NULL;
 
-static tgi_puts(int x, int y, char *text) {
-    int todo = strlen(text);
-    while (todo--) {
-	tgi_char_blit(x, y, &font[fontptr[*text++ - 32]]);
+
+static tgi_putm(int x, int y, char *text, int n) {
+    while (n--) {
+	tgi_char_blit(x,y, &font[fontptr[*text++ - 32]]);
 	x += 4;
     }
 }
 
-/* draw a box around a list of widgets */
+static tgi_puts(int x, int y, char *text) {
+    int todo = strlen(text);
+    tgi_putm(x, y, text, todo);
+}
+
+
 /* fixme: refactor bounding box out of this */
+
+
+/* draw a box around a widget */
+static void bound_widget(widget *p) {
+    widget *w = p;
+    tgi_cset(1);
+    tgi_hline(w->x, w->y, w->w);
+    tgi_hline(w->x, w->y+w->h, w->w);
+    tgi_vline(w->x, w->y, w->h);
+    tgi_vline(w->x+w->w, w->y, w->h);
+}
+
+/* draw a box around a list of widgets */
 static void bound_list(widget *p) {
     widget *w = p;
     int x1 = w->x;
@@ -232,39 +258,50 @@ static uint8_t pos = 0;
 void text_entry(widget *w) {
     if (key == 0x0d) {
 	kfocus = NULL;
+	initstr[pos] = 0;
 	dotext(w, 0);
 	return;
     }
     if (key == 0x08) {
 	if (pos) pos--;
+	tgi_cset(0);
+	tgi_bar( w->x+2 + pos * 4, w->y+2, w->x+2 + pos * 4 + 8, w->y+8);
+	tgi_char_blit( w->x+2 + pos*4, w->y+2, ico_cursor);
 	initstr[pos] = 0;
-	dotext(w,0);
 	return;
     }
+    if (pos > 77) return;
+    tgi_cset(0);
+    tgi_bar(w->x+2 + pos * 4, w->y+2, w->x+2 + pos * 4 + 4, w->y+8);
+    tgi_putm(w->x+2 + pos * 4, w->y+2, &key, 1);
+    tgi_char_blit(w->x+2 + pos*4+4, w->y+2, ico_cursor);
     initstr[pos++] = key;
     initstr[pos] = 0;
-    dotext(w, 0);
     return;
 }
 
 
 static void dotext(widget *w, int e) {
+    if (e == 4) {
+	text_entry(w);
+	return;
+    }
     tgi_cset(0);
     tgi_bar(w->x, w->y, w->x + w->w, w->y + w->h);
     switch (e) {
     case 0:
 	tgi_puts(w->x+2, w->y+2, w->t);
+	bound_widget(w);
 	break;
     case 1:
 	tgi_puts(w->x+3, w->y+3, w->t);
+	bound_widget(w);
 	break;
     case 2:
-	dotext(w, 0);
 	pos = strlen(w->t);
+	dotext(w, 0);
+	tgi_char_blit(w->x+2 + pos *4, w->y+2, ico_cursor);
 	kfocus = w;
-	break;
-    case 4:
-	text_entry(w);
 	break;
     }
 }
@@ -629,6 +666,11 @@ void prefs_run(void)
 		if (focus != head) {
 		    focus = head;
 		    draw_all();
+		}
+		// if we're keyboard focused, then no!
+		if (kfocus != NULL) {
+		    kfocus->doev(kfocus,0);
+		    kfocus = NULL;
 		}
 	    }
 	    mouse_show();
