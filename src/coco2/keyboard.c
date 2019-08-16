@@ -21,6 +21,7 @@ unsigned char ktab[8];
 unsigned char ktab1[8];
 volatile unsigned char key;
 volatile unsigned char meta;
+extern int mouse_b;
 
 /* keycode to ascii table */
 unsigned char atab[] = {
@@ -100,6 +101,10 @@ void kpoll(void)
     unsigned char m = 0;
     unsigned char b = 0xfe;
     int i,j;
+    /* check for joystick(mouse) buttons */
+    keystrobe = 0xff;
+    mouse_b = (~keyread) & 0xf;
+    if (mouse_b) return;
     /* copy existing ktab to prime */
     for(i = 0; i < 8; i++)
 	ktab1[i] = ktab[i];

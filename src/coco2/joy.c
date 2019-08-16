@@ -34,8 +34,6 @@ void do_joy(void) {
     }
     mouse_x = x1;
     mouse_y = y1;
-    keystrobe = ~1;
-    mouse_b = (~keyread) & 0xf;
 }
 
 
