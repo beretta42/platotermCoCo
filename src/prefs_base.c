@@ -493,7 +493,7 @@ static void dook(widget *w, int e) {
     exitf = 1;
 }
 
-static widget initl = {50, 120, 48, 10, 0, "Init String:", dolabel};
+static widget initl = {50, 122, 48, 10, 0, "Init String:", dolabel};
 static widget init =  {50+48, 120, 150, 10, 0, initstr, dotext};
 
 static prefs_init(void) {
