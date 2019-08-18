@@ -49,15 +49,21 @@ int close_ll(void);
 #define DEVNUM *((uint8_t *)0x6f)
 #define NAMBUF (uint8_t *)0x94c
 
-static uint8_t mpi;
+static uint8_t saved_mpi;
+static uint8_t fdc_mpi;
 #define MPI (*(volatile uint8_t *)0xff7f)
 static void save_mpi(void) {
-    mpi = MPI;
-    MPI = 0x33;
+    saved_mpi = MPI;
+    MPI = fdc_mpi;
 }
 
 static void restore_mpi(void) {
-    MPI = mpi;
+    MPI = saved_mpi;
+}
+
+
+void finit(void) {
+    fdc_mpi = MPI;
 }
 
 FILE *fopen(const char *pathname, const char *mode)

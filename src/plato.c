@@ -53,6 +53,7 @@ void autocon(void)
 
 void main(void)
 {
+  finit();
   screen_init();
   config_init();
   io_init();
