@@ -180,7 +180,7 @@ static tgi_putm(int x, int y, char *text, int n) {
     }
 }
 
-static tgi_puts(int x, int y, char *text) {
+void tgi_puts(int x, int y, char *text) {
     int todo = strlen(text);
     tgi_putm(x, y, text, todo);
 }

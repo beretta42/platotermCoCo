@@ -132,10 +132,12 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb,
 
 int fclose(FILE *stream)
 {
+    int ret;
     DEVNUM = 1;
     save_mpi();
-    return close_ll();
+    ret = close_ll();
     restore_mpi();
+    return ret;
 }
 
 
